@@ -8,12 +8,25 @@ treinos semanais, acompanhar feedbacks e orientar a progressao com seguranca.
 - arquitetura documentada em `docs/ARQUITETURA.md`
 - interface mobile-first em HTML, CSS e JavaScript puro
 - persistencia completa em `localStorage`
-- geracao de plano semanal baseada em perfil, objetivo e restricoes
+- motor inteligente por regras, pontuacao de risco e sinais de recuperacao
+- geracao de plano semanal baseada em perfil, objetivo, restricoes, historico e disponibilidade
 - dashboard com peso, agua, jejum, treino do dia e analise do personal
 - feedback de treino e historico de decisoes
+- registro de treino concluido ou incompleto
 - graficos com Chart.js
 - exportacao e importacao de backup JSON
 - `manifest.json` e `service-worker.js` para PWA
+
+## Motor inteligente
+
+O app foi desenhado para uso geral, nao para um unico perfil. O motor avalia
+IMC, idade, nivel, objetivo primario, objetivo secundario, horario, dias
+disponiveis, restricoes, aderencia, dor articular, dor muscular, cansaco, pace,
+queda de desempenho, hidratacao e jejum.
+
+A saida nao e uma escolha manual do usuario. O sistema decide distancia,
+intensidade, estrutura e progressao semanal com prioridade em seguranca,
+constancia e evolucao.
 
 ## Caso de teste obrigatorio
 

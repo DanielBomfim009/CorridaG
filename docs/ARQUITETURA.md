@@ -34,8 +34,17 @@ Implementado em `app.js` por funcoes puras e regras declarativas.
 Entradas analisadas:
 
 - perfil
+- IMC
+- faixa etaria
 - restricoes
+- risco ortopedico
+- risco cardiometabolico
+- disponibilidade semanal
+- objetivo primario
+- objetivo secundario
 - historico recente
+- aderencia
+- tendencia de pace
 - hidratacao
 - jejum
 - regularidade
@@ -50,6 +59,14 @@ Saidas geradas:
 - decisao semanal
 - analise do personal
 - recomendacoes de seguranca
+- risco do perfil
+- intensidade por treino
+- regras aplicadas no plano
+
+O motor nao tenta ser uma lista fechada de casos. Ele usa uma matriz expansivel
+de sinais, pesos, redutores e gatilhos. Cada pessoa passa por uma avaliacao de
+risco antes da montagem do plano, e cada semana passa por uma nova avaliacao de
+resposta ao treino.
 
 ### 4. Persistencia
 
@@ -95,8 +112,11 @@ Colecoes salvas:
 
 - seguranca tem prioridade maxima
 - impacto reduz ao detectar dor articular relevante
+- perfis com IMC alto, restricao articular ou risco cardiometabolico recebem carga mais conservadora
+- usuarios iniciantes ou pouco ativos passam por fase de adaptacao antes de progressao
+- treinos incompletos, fadiga alta, queda de pace ou jejum longo reduzem a prontidao
 - treino so muda semanalmente, salvo risco
-- evolucao depende de regularidade + baixa fadiga + ausencia de dor articular
+- evolucao depende de regularidade + baixa fadiga + ausencia de dor articular + recuperacao suficiente
 - hidratacao e jejum modulam a analise, nao substituem os sinais de seguranca
 
 ## Preparacao para GitHub Pages
