@@ -1,43 +1,43 @@
-# CorridaG
+# CorridaG V1
 
-PWA mobile-first focado exclusivamente em cardio. O aplicativo usa um motor local
-de regras para gerar planos semanais, interpretar feedbacks e orientar a evolução
-com segurança.
+PWA mobile-first que funciona como um Personal Trainer Cardio Digital.
 
-## O que foi entregue
+O CorridaG não é rastreador de corrida, dashboard fitness ou app para o usuário montar treino. O usuário informa perfil, objetivo e disponibilidade. O sistema analisa, explica a decisão, gera o treino da semana, recebe feedback e decide se mantém, reduz ou evolui.
 
-- Arquitetura documentada em `docs/ARQUITETURA.md`.
-- Interface mobile-first em HTML, CSS e JavaScript puro.
-- Onboarding, dashboard, plano semanal, feedback, saúde, histórico, análises e backup.
-- Persistência completa em `localStorage`.
-- Motor inteligente com pontuação de risco e sinais de recuperação.
-- Plano semanal baseado em perfil, objetivos, restrições, histórico e disponibilidade.
-- Registro de treino concluído ou incompleto.
-- Meta de peso, hidratação diária, histórico de jejum e análise semanal.
-- Gráficos de peso, km por treino, km por semana, pace, água, cansaço, dor articular e frequência.
-- Exportação e importação de backup JSON.
-- `manifest.json` e `service-worker.js` para PWA.
+## Estrutura da V1
 
-## Motor inteligente
+- Perfil.
+- Análise do Personal.
+- Treino da Semana.
+- Feedback.
+- Água.
+- Jejum.
+- Histórico.
 
-O app foi desenhado para uso geral, não para um único perfil. O motor avalia IMC,
-idade, nível, objetivos, horário, dias disponíveis, restrições, aderência,
-dor articular, dor muscular, cansaço, pace, queda de desempenho, hidratação,
-jejum e fatores informados no feedback pós-treino.
+## Princípio
 
-A saída não é uma escolha manual do usuário. O sistema decide distância,
-intensidade, estrutura e progressão semanal com prioridade em segurança,
-constância e evolução.
+O usuário não escolhe distância, pace ou progressão. O motor de decisão cardio calcula esses pontos com base em perfil, IMC, nível, objetivo, restrições, disponibilidade e feedbacks reais.
+
+## Motor de Decisão Cardio
+
+Decisões possíveis:
+
+- `REDUZIR`: dor articular >= 4, cansaço >= 8 ou treino não concluído.
+- `MANTER`: treino concluído, cansaço <= 6 e dor articular <= 2.
+- `EVOLUIR`: semana concluída, todos os treinos feitos, cansaço médio <= 5 e sem dor articular.
+
+A evolução só entra na próxima semana. O plano não muda diariamente, exceto por segurança.
+
+## Recursos
+
+- Treino por blocos com pace recomendado.
+- Marcação de blocos concluídos.
+- Resposta textual do personal após feedback.
+- Meta de água por peso.
+- Orientação simples de jejum.
+- Histórico resumido por semana, treino, resultado e decisão.
+- Backup local por exportação/importação JSON.
 
 ## Como executar
 
-1. Abra `index.html` no navegador.
-2. Preencha o perfil na tela de avaliação.
-3. Gere o plano semanal.
-4. Registre água, jejum, peso e feedbacks.
-5. Exporte o JSON quando quiser manter um backup local.
-
-## GitHub Pages
-
-Como o projeto é 100% estático, basta publicar o conteúdo desta pasta em um
-repositório e habilitar o GitHub Pages apontando para a branch principal.
+Abra `index.html` no navegador. O app é estático e salva tudo em `localStorage`.

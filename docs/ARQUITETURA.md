@@ -1,130 +1,109 @@
-# Arquitetura CorridaG
+# Arquitetura CorridaG V1
 
 ## Visão Geral
 
-O CorridaG é um PWA mobile-first de cardio com decisão local baseada em regras.
-Toda a inteligência roda no navegador com persistência em `localStorage`, sem
-backend, sem login e sem dependências de IA externa.
+O CorridaG V1 é um PWA mobile-first que funciona como um Personal Trainer Cardio Digital. Ele não é rastreador de corrida, dashboard fitness ou app para o usuário montar treinos.
 
-## Camadas
+O usuário informa quem é, qual objetivo possui e quando pode treinar. O sistema calcula o restante: distância, pace, estrutura do treino, orientação de água, sugestão de jejum e decisão após feedback.
 
-### 1. Interface
+## Telas
 
-- `index.html`: estrutura semântica do app, telas, abas e formulários.
-- `styles.css`: design mobile-first, tema visual, navegação inferior e responsividade.
+- `Perfil`: coleta dados pessoais, objetivo, disponibilidade, restrições e experiência atual.
+- `Análise do Personal`: explica em linguagem humana por que o plano foi escolhido.
+- `Treino da Semana`: mostra o plano semanal por blocos, com pace guia e marcação de conclusão.
+- `Feedback`: registra conclusão, distância, tempo, pace, cansaço e dores.
+- `Água`: calcula a meta diária pelo peso e permite registro rápido.
+- `Jejum`: orienta uma janela simples de 0h, 12h, 14h ou 16h.
+- `Histórico`: mostra apenas semana, treino, resultado e decisão.
 
-### 2. Aplicação
+## Arquivos
 
-- `app.js`: orquestração principal do estado, renderização, eventos e regras.
+- `index.html`: estrutura semântica das sete telas.
+- `styles.css`: interface escura, mobile-first, cards, abas e navegação inferior.
+- `app.js`: estado, renderização, eventos, persistência e Motor de Decisão Cardio.
+- `manifest.json`: configuração PWA.
+- `service-worker.js`: cache do shell estático.
 
-Responsabilidades principais:
+## Motor de Decisão Cardio
 
-- Inicializar o estado.
-- Hidratar dados persistidos.
-- Reagir a formulários, abas e botões.
-- Recalcular indicadores.
-- Gerar treinos semanais.
-- Gerar análises do personal.
-- Alimentar os gráficos.
+O motor não usa IA externa. As decisões são baseadas em regras locais.
 
-### 3. Motor Inteligente
+Entradas principais:
 
-Implementado em `app.js` por funções puras e regras declarativas.
+- idade;
+- peso;
+- altura;
+- IMC;
+- nível atual;
+- objetivo principal;
+- dias disponíveis;
+- horário de treino;
+- restrição principal;
+- experiência atual de caminhada/corrida;
+- último pace conhecido, quando informado;
+- feedback do treino.
 
-Entradas analisadas:
+Saídas principais:
 
-- Perfil.
-- IMC.
-- Faixa etária.
-- Restrições.
-- Risco ortopédico.
-- Risco cardiometabólico.
-- Disponibilidade semanal.
-- Objetivo primário.
-- Objetivo secundário.
-- Histórico recente.
-- Aderência.
-- Tendência de pace.
-- Hidratação.
-- Jejum.
-- Sono.
-- Regularidade.
-- Fadiga.
-- Dor muscular.
-- Dor articular.
+- análise textual do personal;
+- distância inicial;
+- frequência semanal;
+- pace de caminhada, corrida leve e recuperação;
+- treino semanal por blocos;
+- resposta após feedback;
+- decisão `MANTER`, `REDUZIR` ou `EVOLUIR`.
 
-Saídas geradas:
+## Regras de Decisão
 
-- Plano semanal.
-- Treino do dia.
-- Decisão semanal.
-- Análise do personal.
-- Recomendações de segurança.
-- Risco do perfil.
-- Intensidade por treino.
-- Regras aplicadas no plano.
+`REDUZIR` quando:
 
-O motor não tenta ser uma lista fechada de casos. Ele usa uma matriz expansível
-de sinais, pesos, redutores e gatilhos. Cada pessoa passa por uma avaliação de
-risco antes da montagem do plano, e cada semana passa por uma nova avaliação de
-resposta ao treino.
+- dor articular >= 4;
+- cansaço >= 8;
+- treino não concluído.
 
-### 4. Persistência
+`MANTER` quando:
 
-Persistência local em `localStorage` com um único snapshot versionado:
+- treino concluído;
+- cansaço <= 6;
+- dor articular <= 2.
 
-- `corridag-state`
+`EVOLUIR` quando:
 
-Coleções salvas:
+- semana concluída;
+- todos os treinos feitos;
+- sem dor articular;
+- cansaço médio <= 5.
 
-- Perfil.
-- Meta de peso.
-- Metas.
-- Treinos semanais.
-- Histórico de treinos.
-- Feedbacks.
-- Peso.
-- Água.
-- Jejum.
-- Decisões.
+## Regra Principal
 
-### 5. Visualização
+O treino permanece durante toda a semana. Ele não muda diariamente e não muda por qualquer feedback isolado.
 
-- Dashboard para resumo diário.
-- Plano semanal em blocos.
-- Feedback pós-treino.
-- Saúde com água, jejum e peso.
-- Histórico com análises, treinos e backup.
-- Gráficos de peso, km por treino, km por semana, pace, água, cansaço, dor articular e frequência.
+Exceções de segurança:
 
-### 6. PWA
+- dor articular relevante;
+- fadiga extrema;
+- incapacidade de concluir.
 
-- `manifest.json`
-- `service-worker.js`
-- Cache do shell do app para uso repetido.
+Fora desses casos, o sistema mantém o plano. Evolução real entra apenas na próxima semana.
 
-## Fluxo Principal
+## Persistência
 
-1. Usuário passa pelo onboarding e cadastra perfil/disponibilidade.
-2. Sistema calcula IMC, risco do perfil e sugestão-base.
-3. Motor gera um plano semanal estável.
-4. Usuário executa o treino e registra feedback.
-5. Sistema classifica a semana como `MANTER`, `REDUZIR` ou `EVOLUIR`.
-6. A alteração real do treino só entra na semana seguinte, salvo risco imediato.
-7. Aos domingos, se houver dados da semana, o app registra uma análise semanal sem duplicar decisões.
+Tudo é salvo em `localStorage` usando a chave `corridag-v1-state`.
 
-## Regras-Chave
+Dados salvos:
 
-- Segurança tem prioridade máxima.
-- Impacto reduz ao detectar dor articular relevante.
-- Perfis com IMC alto, restrição articular ou risco cardiometabólico recebem carga mais conservadora.
-- Usuários iniciantes ou pouco ativos passam por fase de adaptação antes de progressão.
-- Treinos incompletos, fadiga alta, queda de pace, sono baixo ou jejum longo reduzem a prontidão.
-- O treino só muda semanalmente, salvo risco.
-- Evolução depende de regularidade, baixa fadiga, ausência de dor articular e recuperação suficiente.
-- Hidratação, sono e jejum modulam a análise, mas não substituem os sinais de segurança.
+- perfil;
+- análise atual;
+- plano semanal;
+- blocos concluídos;
+- feedbacks;
+- decisões;
+- água do dia;
+- histórico de água;
+- opção de jejum.
 
-## Preparação Para GitHub Pages
+Como não há login nem backend, o app mantém exportação e importação de JSON para backup.
 
-O projeto usa apenas arquivos estáticos e caminhos relativos, então pode ser
-publicado diretamente no GitHub Pages sem etapa de build.
+## PWA e GitHub Pages
+
+O projeto é estático, usa caminhos relativos e pode ser publicado diretamente no GitHub Pages sem etapa de build.

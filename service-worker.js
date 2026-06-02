@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-v4";
+const CACHE_NAME = "corridag-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
