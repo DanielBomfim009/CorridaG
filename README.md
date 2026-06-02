@@ -21,9 +21,9 @@ com segurança.
 ## Motor inteligente
 
 O app foi desenhado para uso geral, não para um único perfil. O motor avalia IMC,
-idade, nível, objetivos, horário, dias disponíveis, restrições, prática atual,
-sono, aderência, dor articular, dor muscular, cansaço, pace, queda de desempenho,
-hidratação e jejum.
+idade, nível, objetivos, horário, dias disponíveis, restrições, aderência,
+dor articular, dor muscular, cansaço, pace, queda de desempenho, hidratação,
+jejum e fatores informados no feedback pós-treino.
 
 A saída não é uma escolha manual do usuário. O sistema decide distância,
 intensidade, estrutura e progressão semanal com prioridade em segurança,

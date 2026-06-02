@@ -42,7 +42,6 @@ Entradas analisadas:
 - Disponibilidade semanal.
 - Objetivo primário.
 - Objetivo secundário.
-- Prática atual de caminhada e corrida.
 - Histórico recente.
 - Aderência.
 - Tendência de pace.

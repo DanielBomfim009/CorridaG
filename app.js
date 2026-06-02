@@ -249,10 +249,6 @@ function analyzeProfile(profile) {
   const primaryGoalRule = GOAL_RULES[profile.primaryGoal] || GOAL_RULES.saude;
   const secondaryGoalRule = GOAL_RULES[profile.secondaryGoal] || GOAL_RULES.saude;
   const daysCount = profile.days?.length || 0;
-  const walkKm = Number(profile.walkKm || 0);
-  const runKm = Number(profile.runKm || 0);
-  const sleepHours = Number(profile.sleepHours || 0);
-  const lastPaceSeconds = parsePaceToSeconds(profile.lastPace);
   const flags = [];
   let score = 0;
   let distance = levelRule.distance + primaryGoalRule.distanceDelta + (secondaryGoalRule.distanceDelta * 0.45);
@@ -316,55 +312,6 @@ function analyzeProfile(profile) {
   } else if (profile.level === "pouco ativo") {
     score += 1;
     flags.push("pouco ativo: consolidar rotina semanal");
-  }
-
-  if (profile.walkPractice === "sim" && walkKm >= 2) {
-    distance += clamp(walkKm * 0.16, 0.2, 0.8);
-    flags.push("base de caminhada aproveitada no plano");
-  } else if (profile.walkPractice === "nao") {
-    score += 1;
-    distance -= 0.2;
-    runRatio -= 0.08;
-    flags.push("sem rotina de caminhada: adaptação inicial");
-  }
-
-  if (profile.runPractice === "sim" && runKm > 0) {
-    distance += clamp(runKm * 0.12, 0.1, 0.9);
-    runRatio += clamp(runKm * 0.03, 0.04, 0.16);
-    flags.push("experiência de corrida considerada");
-  } else if (profile.runPractice === "nao") {
-    runRatio -= 0.1;
-  }
-
-  if (profile.recentInjury === "sim") {
-    score += 3;
-    distance -= 0.6;
-    runRatio -= 0.18;
-    flags.push("lesão recente: reduzir carga e impacto");
-  }
-
-  if (profile.abandonedBefore === "sim") {
-    score += 1;
-    distance -= 0.2;
-    flags.push("histórico de abandono: plano mais aderente");
-  }
-
-  if (sleepHours && sleepHours < 6) {
-    score += 2;
-    distance -= 0.3;
-    runRatio -= 0.08;
-    flags.push("sono baixo: recuperação limitada");
-  } else if (sleepHours >= 7.5) {
-    distance += 0.1;
-    flags.push("sono favorável para recuperação");
-  }
-
-  if (lastPaceSeconds >= 720) {
-    runRatio -= 0.08;
-    flags.push("pace recente indica prioridade em base aeróbica");
-  } else if (lastPaceSeconds && lastPaceSeconds <= 540 && profile.runPractice === "sim") {
-    runRatio += 0.06;
-    flags.push("pace recente permite corrida leve controlada");
   }
 
   if (daysCount <= 1) {
@@ -1092,15 +1039,6 @@ function bindForms() {
       primaryGoal: data.get("primaryGoal"),
       secondaryGoal: data.get("secondaryGoal"),
       restriction: data.get("restriction"),
-      walkPractice: data.get("walkPractice"),
-      runPractice: data.get("runPractice"),
-      walkKm: Number(data.get("walkKm") || 0),
-      runKm: Number(data.get("runKm") || 0),
-      lastWorkout: data.get("lastWorkout"),
-      lastPace: data.get("lastPace"),
-      recentInjury: data.get("recentInjury"),
-      abandonedBefore: data.get("abandonedBefore"),
-      sleepHours: Number(data.get("sleepHours") || 0),
       days: selectedDays
     };
     state.weightHistory.push({ date: todayKey(), value: state.profile.weight });
