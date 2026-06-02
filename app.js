@@ -8,6 +8,15 @@ const GOALS = [
   "correr 10 km",
   "sair do sedentarismo"
 ];
+const GOAL_LABELS = {
+  "emagrecimento": "Emagrecimento",
+  "saude": "Saúde",
+  "condicionamento": "Condicionamento",
+  "esporte": "Esporte",
+  "correr 5 km": "Correr 5 km",
+  "correr 10 km": "Correr 10 km",
+  "sair do sedentarismo": "Sair do sedentarismo"
+};
 const RESTRICTIONS = [
   "nenhuma",
   "joelho",
@@ -18,6 +27,16 @@ const RESTRICTIONS = [
   "diabetes",
   "falta de ar excessiva"
 ];
+const RESTRICTION_LABELS = {
+  "nenhuma": "Nenhuma",
+  "joelho": "Joelho",
+  "canela": "Canela",
+  "tornozelo": "Tornozelo",
+  "coluna": "Coluna",
+  "pressao alta": "Pressão alta",
+  "diabetes": "Diabetes",
+  "falta de ar excessiva": "Falta de ar excessiva"
+};
 const DAYS = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"];
 const DAY_INDEX = { 1: "SEG", 2: "TER", 3: "QUA", 4: "QUI", 5: "SEX", 6: "SAB", 0: "DOM" };
 const IMPACT_RESTRICTIONS = ["joelho", "canela", "tornozelo", "coluna"];
@@ -26,18 +45,25 @@ const LEVEL_RULES = {
   "iniciante": { distance: 2.0, runRatio: 0.12, minDays: 2, maxProgression: 0.3, label: "base inicial" },
   "pouco ativo": { distance: 3.6, runRatio: 0.28, minDays: 3, maxProgression: 0.5, label: "base gradual" },
   "intermediario": { distance: 5.0, runRatio: 0.55, minDays: 3, maxProgression: 0.7, label: "base estruturada" },
-  "avancado": { distance: 7.0, runRatio: 0.72, minDays: 4, maxProgression: 1.0, label: "base avancada" }
+  "avancado": { distance: 7.0, runRatio: 0.72, minDays: 4, maxProgression: 1.0, label: "base avançada" }
 };
 const GOAL_RULES = {
   "emagrecimento": { distanceDelta: 0.3, runRatioDelta: -0.04, longWalk: true, reason: "maior gasto com impacto controlado" },
   "saude": { distanceDelta: 0, runRatioDelta: -0.08, longWalk: true, reason: "estabilidade cardiovascular" },
   "condicionamento": { distanceDelta: 0.4, runRatioDelta: 0.06, longWalk: false, reason: "melhora gradual de capacidade" },
-  "esporte": { distanceDelta: 0.6, runRatioDelta: 0.08, longWalk: false, reason: "preparacao fisica geral" },
-  "correr 5 km": { distanceDelta: 0.4, runRatioDelta: 0.1, longWalk: false, reason: "aproximacao progressiva dos 5 km" },
-  "correr 10 km": { distanceDelta: 0.8, runRatioDelta: 0.08, longWalk: true, reason: "volume semanal para distancia maior" },
-  "sair do sedentarismo": { distanceDelta: -0.4, runRatioDelta: -0.16, longWalk: true, reason: "retorno seguro a rotina ativa" }
+  "esporte": { distanceDelta: 0.6, runRatioDelta: 0.08, longWalk: false, reason: "preparação física geral" },
+  "correr 5 km": { distanceDelta: 0.4, runRatioDelta: 0.1, longWalk: false, reason: "aproximação progressiva dos 5 km" },
+  "correr 10 km": { distanceDelta: 0.8, runRatioDelta: 0.08, longWalk: true, reason: "volume semanal para distância maior" },
+  "sair do sedentarismo": { distanceDelta: -0.4, runRatioDelta: -0.16, longWalk: true, reason: "retorno seguro à rotina ativa" }
+};
+const WORKOUT_LABELS = {
+  "caminhada longa": "Caminhada longa",
+  "caminhada de recuperacao": "Caminhada de recuperação",
+  "corrida leve": "Corrida leve",
+  "corrida + caminhada": "Corrida + caminhada"
 };
 let charts = {};
+let selectedPlanDay = null;
 
 const initialState = () => ({
   profile: null,
@@ -114,6 +140,16 @@ function getTodayWorkout() {
   return state.weeklyPlan?.days?.find((item) => item.day === day) || null;
 }
 
+function getNextWorkout() {
+  const planDays = state.weeklyPlan?.days || [];
+  if (!planDays.length) return null;
+  const today = currentDayLabel();
+  const todayOrder = DAYS.indexOf(today);
+  return planDays.find((item) => DAYS.indexOf(item.day) >= todayOrder && item.status !== "concluido") ||
+    planDays.find((item) => item.status !== "concluido") ||
+    planDays[0];
+}
+
 function getLastWeekFeedback() {
   const weekId = state.weeklyPlan?.weekId;
   return state.workoutHistory.filter((item) => item.weekId === weekId);
@@ -135,6 +171,10 @@ function formatPace(seconds) {
   const minutes = Math.floor(seconds / 60);
   const rest = Math.round(seconds % 60).toString().padStart(2, "0");
   return `${minutes}:${rest}`;
+}
+
+function workoutLabel(type) {
+  return WORKOUT_LABELS[type] || type;
 }
 
 function jointPain(item) {
@@ -161,6 +201,10 @@ function analyzeProfile(profile) {
   const primaryGoalRule = GOAL_RULES[profile.primaryGoal] || GOAL_RULES.saude;
   const secondaryGoalRule = GOAL_RULES[profile.secondaryGoal] || GOAL_RULES.saude;
   const daysCount = profile.days?.length || 0;
+  const walkKm = Number(profile.walkKm || 0);
+  const runKm = Number(profile.runKm || 0);
+  const sleepHours = Number(profile.sleepHours || 0);
+  const lastPaceSeconds = parsePaceToSeconds(profile.lastPace);
   const flags = [];
   let score = 0;
   let distance = levelRule.distance + primaryGoalRule.distanceDelta + (secondaryGoalRule.distanceDelta * 0.45);
@@ -185,7 +229,7 @@ function analyzeProfile(profile) {
     score += 1;
     distance -= 0.1;
     runRatio -= 0.03;
-    flags.push("atencao ao volume inicial");
+    flags.push("atenção ao volume inicial");
   }
 
   if (profile.age < 18) {
@@ -196,7 +240,7 @@ function analyzeProfile(profile) {
     score += 3;
     distance -= 0.7;
     runRatio -= 0.12;
-    flags.push("idade alta: recuperacao ampliada");
+    flags.push("idade alta: recuperação ampliada");
   } else if (profile.age >= 45) {
     score += 1;
     distance -= 0.2;
@@ -208,7 +252,7 @@ function analyzeProfile(profile) {
     score += 4;
     distance -= 1;
     runRatio -= 0.28;
-    flags.push(`restricao em ${profile.restriction}: baixo impacto obrigatorio`);
+    flags.push(`restrição em ${RESTRICTION_LABELS[profile.restriction] || profile.restriction}: baixo impacto obrigatório`);
   }
 
   if (CARDIO_RESTRICTIONS.includes(profile.restriction)) {
@@ -226,6 +270,55 @@ function analyzeProfile(profile) {
     flags.push("pouco ativo: consolidar rotina semanal");
   }
 
+  if (profile.walkPractice === "sim" && walkKm >= 2) {
+    distance += clamp(walkKm * 0.16, 0.2, 0.8);
+    flags.push("base de caminhada aproveitada no plano");
+  } else if (profile.walkPractice === "nao") {
+    score += 1;
+    distance -= 0.2;
+    runRatio -= 0.08;
+    flags.push("sem rotina de caminhada: adaptacao inicial");
+  }
+
+  if (profile.runPractice === "sim" && runKm > 0) {
+    distance += clamp(runKm * 0.12, 0.1, 0.9);
+    runRatio += clamp(runKm * 0.03, 0.04, 0.16);
+    flags.push("experiencia de corrida considerada");
+  } else if (profile.runPractice === "nao") {
+    runRatio -= 0.1;
+  }
+
+  if (profile.recentInjury === "sim") {
+    score += 3;
+    distance -= 0.6;
+    runRatio -= 0.18;
+    flags.push("lesao recente: reduzir carga e impacto");
+  }
+
+  if (profile.abandonedBefore === "sim") {
+    score += 1;
+    distance -= 0.2;
+    flags.push("histórico de abandono: plano mais aderente");
+  }
+
+  if (sleepHours && sleepHours < 6) {
+    score += 2;
+    distance -= 0.3;
+    runRatio -= 0.08;
+    flags.push("sono baixo: recuperação limitada");
+  } else if (sleepHours >= 7.5) {
+    distance += 0.1;
+    flags.push("sono favorável para recuperação");
+  }
+
+  if (lastPaceSeconds >= 720) {
+    runRatio -= 0.08;
+    flags.push("pace recente indica prioridade em base aerobica");
+  } else if (lastPaceSeconds && lastPaceSeconds <= 540 && profile.runPractice === "sim") {
+    runRatio += 0.06;
+    flags.push("pace recente permite corrida leve controlada");
+  }
+
   if (daysCount <= 1) {
     score += 2;
     distance -= 0.3;
@@ -233,7 +326,7 @@ function analyzeProfile(profile) {
   } else if (daysCount >= 5 && profile.level !== "avancado") {
     score += 1;
     distance -= 0.2;
-    flags.push("muitos dias: inserir recuperacao ativa");
+    flags.push("muitos dias: inserir recuperação ativa");
   }
 
   if (profile.schedule === "noite" || profile.schedule === "apos 18h") {
@@ -268,6 +361,12 @@ function analyzeTrainingContext(feedbacks, profile = state.profile) {
   const avgMusclePain = average(feedbacks.map((item) => item.musclePain || 0));
   const jointPainMax = Math.max(...feedbacks.map(jointPain), 0);
   const totalKm = feedbacks.reduce((sum, item) => sum + (item.distance || 0), 0);
+  const influenceLoad = feedbacks.reduce((sum, item) => {
+    const influence = item.influence || "nada diferente";
+    if (["dormi mal", "comi pouco", "treinei em jejum", "dor antes do treino"].includes(influence)) return sum + 8;
+    if (["trabalhei muito", "calor forte", "estresse"].includes(influence)) return sum + 5;
+    return sum;
+  }, 0);
   const waterAverage = average(state.waterHistory.slice(-7).map((entry) => entry.amount || 0));
   const fastingAverage = average(state.fastingSessions.slice(-7).map((entry) => entry.durationHours || 0));
   const activeFastHours = getFastingHours();
@@ -279,6 +378,7 @@ function analyzeTrainingContext(feedbacks, profile = state.profile) {
     - (jointPainMax * 10)
     - (incomplete * 12)
     - (performanceDrop ? 14 : 0)
+    - influenceLoad
     - (waterAverage && waterAverage < 2500 ? 8 : 0)
     - (Math.max(fastingAverage, activeFastHours) >= 16 ? 8 : 0)
     - (profileAnalysis.score * 2);
@@ -289,8 +389,12 @@ function analyzeTrainingContext(feedbacks, profile = state.profile) {
   if (avgMusclePain >= 6) signals.push("dor muscular acima do ideal");
   if (incomplete > 0) signals.push("treino incompleto");
   if (performanceDrop) signals.push("queda de desempenho");
+  feedbacks
+    .map((item) => item.influence)
+    .filter((item) => item && item !== "nada diferente")
+    .forEach((item) => signals.push(`contexto do treino: ${item}`));
   if (waterAverage && waterAverage < 2500) signals.push("hidratacao baixa");
-  if (Math.max(fastingAverage, activeFastHours) >= 16) signals.push("jejum longo afetando recuperacao");
+  if (Math.max(fastingAverage, activeFastHours) >= 16) signals.push("jejum longo afetando recuperação");
   if (profileAnalysis.riskLevel === "alto") signals.push("perfil de risco alto");
 
   return {
@@ -318,7 +422,7 @@ function classifyDecision(feedbacks, profile = state.profile) {
   if (!feedbacks.length) {
     return {
       decision: "MANTER",
-      reason: `Plano inicial calibrado para risco ${context.profileAnalysis.riskLevel}. A primeira semana deve servir como leitura de seguranca e constancia.`,
+      reason: `Plano inicial calibrado para risco ${context.profileAnalysis.riskLevel}. A primeira semana deve servir como leitura de segurança e constância.`,
       context
     };
   }
@@ -326,7 +430,7 @@ function classifyDecision(feedbacks, profile = state.profile) {
   if (context.jointPainMax >= 4 || context.avgFatigue >= 8 || context.incomplete > 0 || context.performanceDrop) {
     return {
       decision: "REDUZIR",
-      reason: `Reduzir por seguranca: ${context.signals.join(", ") || "sinais de recuperacao insuficiente"}.`,
+      reason: `Reduzir por segurança: ${context.signals.join(", ") || "sinais de recuperação insuficiente"}.`,
       context
     };
   }
@@ -339,7 +443,7 @@ function classifyDecision(feedbacks, profile = state.profile) {
       context.profileAnalysis.riskLevel !== "alto") {
     return {
       decision: "EVOLUIR",
-      reason: "Evoluir na proxima semana: boa frequencia, cansaco controlado, recuperacao adequada e ausencia de dor articular.",
+      reason: "Evoluir na próxima semana: boa frequência, cansaço controlado, recuperação adequada e ausência de dor articular.",
       context
     };
   }
@@ -368,7 +472,7 @@ function paceGuide(type, analysis) {
     return { walk: "10:40-11:50", run: "9:10-10:20", recovery: "10:20-11:20" };
   }
 
-  if (analysis.profileAnalysis?.levelRule?.label === "base avancada") {
+  if (analysis.profileAnalysis?.levelRule?.label === "base avançada") {
     return { walk: "9:40-10:50", run: "7:20-8:40", recovery: "9:30-10:30" };
   }
 
@@ -392,8 +496,8 @@ function createBlocks(type, distance, profile, analysis) {
   if (type === "caminhada de recuperacao") {
     return [
       { range: `0,0 -> ${warmup.toFixed(1).replace(".", ",")} km`, label: "Caminhada leve", pace: pace.walk },
-      { range: `${warmup.toFixed(1).replace(".", ",")} -> ${Math.max(warmup + 0.6, distance - 0.4).toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperacao", pace: pace.recovery },
-      { range: `${Math.max(warmup + 0.6, distance - 0.4).toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Respiracao e volta a calma", pace: pace.walk }
+      { range: `${warmup.toFixed(1).replace(".", ",")} -> ${Math.max(warmup + 0.6, distance - 0.4).toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperação", pace: pace.recovery },
+      { range: `${Math.max(warmup + 0.6, distance - 0.4).toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Respiração e volta à calma", pace: pace.walk }
     ];
   }
 
@@ -401,7 +505,7 @@ function createBlocks(type, distance, profile, analysis) {
     return [
       { range: `0,0 -> ${warmup.toFixed(1).replace(".", ",")} km`, label: "Caminhada de aquecimento", pace: pace.walk },
       { range: `${warmup.toFixed(1).replace(".", ",")} -> ${mainEnd.toFixed(1).replace(".", ",")} km`, label: "Corrida + caminhada de baixo impacto", pace: pace.recovery },
-      { range: `${mainEnd.toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperacao", pace: pace.walk }
+      { range: `${mainEnd.toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperação", pace: pace.walk }
     ];
   }
 
@@ -409,14 +513,14 @@ function createBlocks(type, distance, profile, analysis) {
     return [
       { range: `0,0 -> ${warmup.toFixed(1).replace(".", ",")} km`, label: "Caminhada aquecimento", pace: pace.walk },
       { range: `${warmup.toFixed(1).replace(".", ",")} -> ${mainEnd.toFixed(1).replace(".", ",")} km`, label: "Corrida leve", pace: pace.run },
-      { range: `${mainEnd.toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Caminhada recuperacao", pace: pace.recovery }
+      { range: `${mainEnd.toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperação", pace: pace.recovery }
     ];
   }
 
   return [
     { range: `0,0 -> ${warmup.toFixed(1).replace(".", ",")} km`, label: "Caminhada aquecimento", pace: pace.walk },
     { range: `${warmup.toFixed(1).replace(".", ",")} -> ${mainEnd.toFixed(1).replace(".", ",")} km`, label: "Corrida + caminhada", pace: pace.run },
-    { range: `${mainEnd.toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperacao", pace: pace.recovery }
+    { range: `${mainEnd.toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Caminhada de recuperação", pace: pace.recovery }
   ];
 }
 
@@ -504,25 +608,25 @@ function generateCoachMessage() {
   const recentDecision = state.decisions[state.decisions.length - 1];
 
   let message = todayWorkout
-    ? `Hoje o foco e ${todayWorkout.type} em intensidade ${todayWorkout.intensity || "controlada"}, com alvo de ${todayWorkout.targetDistance.toFixed(1).replace(".", ",")} km.`
-    : "Hoje nao ha treino previsto; o sistema pode usar o dia para recuperacao e consolidacao.";
+    ? `Hoje o foco é ${workoutLabel(todayWorkout.type)} em intensidade ${todayWorkout.intensity || "controlada"}, com alvo de ${todayWorkout.targetDistance.toFixed(1).replace(".", ",")} km.`
+    : "Hoje não há treino previsto; o sistema pode usar o dia para recuperação e consolidação.";
 
   if (analysis.riskLevel === "alto") {
-    message += " O perfil atual pede baixo impacto, leitura de sinais corporais e evolucao lenta.";
+    message += " O perfil atual pede baixo impacto, leitura de sinais corporais e evolução lenta.";
   } else if (analysis.riskLevel === "moderado") {
-    message += " O plano esta calibrado para evoluir sem trocar seguranca por pressa.";
+    message += " O plano está calibrado para evoluir sem trocar segurança por pressa.";
   }
 
   if (waterGap > 2000) {
-    message += " Sua ingestao de agua esta abaixo do recomendado para uma boa recuperacao.";
+    message += " Sua ingestão de água está abaixo do recomendado para uma boa recuperação.";
   }
 
   if (fastingHours >= 14) {
-    message += " O periodo de jejum pode estar impactando energia e recuperacao.";
+    message += " O período de jejum pode estar impactando energia e recuperação.";
   }
 
   if (recentDecision?.decision === "REDUZIR") {
-    message += " Como houve sinal de risco recente, a prioridade agora e proteger articulacoes e manter constancia.";
+    message += " Como houve sinal de risco recente, a prioridade agora é proteger articulações e manter constância.";
   }
 
   return message;
@@ -538,7 +642,7 @@ function generateRecommendations() {
   if (state.waterToday < 2000) recs.push("Aumentar hidratacao hoje");
   if (getFastingHours() >= 14) recs.push("Observar energia antes do treino");
   if (state.weeklyPlan?.decisionBasis) recs.push(`Base semanal: ${state.weeklyPlan.decisionBasis}`);
-  return recs.length ? recs : ["Plano estavel", "Seguranca primeiro", "Evolucao semanal"];
+  return recs.length ? recs : ["Plano estável", "Segurança primeiro", "Evolução semanal"];
 }
 
 function generateWeeklySummary() {
@@ -569,60 +673,9 @@ function generateWeeklySummary() {
   renderApp();
 }
 
-function createDanielDemoState() {
-  const demo = initialState();
-  demo.profile = {
-    name: "Daniel",
-    age: 22,
-    sex: "masculino",
-    weight: 120.5,
-    height: 1.8,
-    level: "pouco ativo",
-    schedule: "apos 18h",
-    primaryGoal: "emagrecimento",
-    secondaryGoal: "correr 5 km",
-    restriction: "nenhuma",
-    days: ["SEG", "QUA", "SEX", "DOM"]
-  };
-  demo.weightHistory = [{ date: todayKey(), value: 120.5 }];
-  demo.waterToday = 2500;
-  demo.waterHistory = [{ date: todayKey(), amount: 2500 }];
-  demo.weeklyPlan = buildWeeklyPlan(demo.profile, []);
-  demo.workoutHistory = [{
-    id: crypto.randomUUID(),
-    weekId: demo.weeklyPlan.weekId,
-    date: todayKey(),
-    day: "SEG",
-    distance: 4.4,
-    duration: "39:54",
-    pace: "9:03",
-    fatigue: 5,
-    musclePain: 2,
-    kneePain: 0,
-    shinPain: 0,
-    anklePain: 0,
-    notes: "Cansou um pouco mas controlado. Dor muscular leve. Sem dor articular.",
-    completed: true
-  }];
-  demo.decisions = [{
-    weekId: demo.weeklyPlan.weekId,
-    createdAt: new Date().toISOString(),
-    decision: "MANTER",
-    reason: "Treino bem executado. Cansaco controlado e sem dor articular. Nao ha necessidade de alterar o plano da semana.",
-    stats: {
-      totalKm: 4.4,
-      avgPace: "9:03",
-      completed: 1,
-      waterAverage: 2500,
-      currentWeight: 120.5
-    }
-  }];
-  return demo;
-}
-
 function setSelectOptions() {
-  const goalOptions = GOALS.map((value) => `<option value="${value}">${value}</option>`).join("");
-  const restrictionOptions = RESTRICTIONS.map((value) => `<option value="${value}">${value}</option>`).join("");
+  const goalOptions = GOALS.map((value) => `<option value="${value}">${GOAL_LABELS[value]}</option>`).join("");
+  const restrictionOptions = RESTRICTIONS.map((value) => `<option value="${value}">${RESTRICTION_LABELS[value]}</option>`).join("");
   document.querySelector('select[name="primaryGoal"]').innerHTML = goalOptions;
   document.querySelector('select[name="secondaryGoal"]').innerHTML = goalOptions;
   document.querySelector('select[name="restriction"]').innerHTML = restrictionOptions;
@@ -655,23 +708,36 @@ function renderMetrics() {
   const bmi = calculateBMI(weight, state.profile?.height || 0);
   const fastHours = getFastingHours();
   const todayWorkout = getTodayWorkout();
+  const nextWorkout = getNextWorkout();
+  const waterProgress = clamp(state.waterToday / 4000, 0, 1);
+  const greetingName = state.profile?.name ? `Olá, ${state.profile.name}` : "Olá";
+  document.getElementById("dashboard-greeting").textContent = greetingName;
   document.getElementById("metric-weight").textContent = weight ? `${weight.toFixed(1).replace(".", ",")} kg` : "-";
   document.getElementById("metric-bmi").textContent = bmi ? `IMC ${bmi.toFixed(1).replace(".", ",")}` : "IMC -";
   document.getElementById("metric-water").textContent = `${state.waterToday} ml`;
   document.getElementById("metric-fasting").textContent = `${fastHours.toFixed(1).replace(".", ",")}h`;
-  document.getElementById("metric-fasting-status").textContent = getActiveFast() ? "Sessao ativa" : "Sem sessao ativa";
-  document.getElementById("metric-today-type").textContent = todayWorkout ? todayWorkout.type : "Sem plano";
+  document.getElementById("metric-fasting-status").textContent = getActiveFast() ? "Sessão ativa" : "Sem sessão ativa";
+  document.getElementById("metric-today-type").textContent = todayWorkout ? workoutLabel(todayWorkout.type) : "Sem plano";
   document.getElementById("metric-today-distance").textContent = todayWorkout ? `${todayWorkout.targetDistance.toFixed(1).replace(".", ",")} km alvo` : "0 km";
+  document.getElementById("water-ring-value").textContent = `${state.waterToday} ml`;
+  document.getElementById("water-ring").style.setProperty("--water-progress", `${Math.round(waterProgress * 360)}deg`);
+  document.getElementById("fasting-large-value").textContent = `${fastHours.toFixed(1).replace(".", ",")}h`;
+  document.getElementById("fasting-state-label").textContent = getActiveFast() ? "Em andamento" : "Jejum";
+  document.getElementById("next-workout-title").textContent = nextWorkout
+    ? `${nextWorkout.day} - ${workoutLabel(nextWorkout.type)}`
+    : "Plano ainda não gerado";
+  document.getElementById("next-workout-detail").textContent = nextWorkout
+    ? `${nextWorkout.targetDistance.toFixed(1).replace(".", ",")} km em intensidade ${nextWorkout.intensity || "controlada"}`
+    : "Preencha o perfil para receber o plano semanal.";
 }
 
 function renderCoach() {
-  document.getElementById("hero-analysis").textContent = generateCoachMessage();
   document.getElementById("coach-message").textContent = generateCoachMessage();
   document.getElementById("water-analysis").textContent = state.waterToday < 4000
-    ? `Faltam ${4000 - state.waterToday} ml para a meta diaria.`
-    : "Meta de agua atingida para o dia.";
+    ? `Faltam ${4000 - state.waterToday} ml para a meta diária.`
+    : "Meta de água atingida para o dia.";
   document.getElementById("fasting-analysis").textContent = getActiveFast()
-    ? `Jejum em andamento ha ${getFastingHours().toFixed(1).replace(".", ",")} horas.`
+    ? `Jejum em andamento há ${getFastingHours().toFixed(1).replace(".", ",")} horas.`
     : "Nenhum jejum ativo no momento.";
 
   const tags = document.getElementById("recommendations");
@@ -681,18 +747,31 @@ function renderCoach() {
 function renderPlan() {
   const container = document.getElementById("weekly-plan");
   const badge = document.getElementById("week-badge");
+  const dayFilter = document.getElementById("day-filter");
   const plan = state.weeklyPlan;
 
   if (!plan) {
     badge.textContent = "Sem semana ativa";
+    if (dayFilter) dayFilter.innerHTML = "";
     container.innerHTML = '<div class="list-item">Gere o plano semanal apos salvar o perfil.</div>';
     return;
   }
 
   badge.textContent = `${plan.weekId} - ${plan.decisionBasis} - risco ${plan.riskLevel || "indefinido"}`;
-  container.innerHTML = plan.days.map((day) => `
+  if (!selectedPlanDay || !plan.days.some((item) => item.day === selectedPlanDay)) {
+    selectedPlanDay = getTodayWorkout()?.day || plan.days[0]?.day || null;
+  }
+
+  if (dayFilter) {
+    dayFilter.innerHTML = plan.days.map((day) => `
+      <button class="${day.day === selectedPlanDay ? "active" : ""}" data-plan-day="${day.day}">${day.day}</button>
+    `).join("");
+  }
+
+  const visibleDays = selectedPlanDay ? plan.days.filter((day) => day.day === selectedPlanDay) : plan.days;
+  container.innerHTML = visibleDays.map((day) => `
     <article class="timeline-item">
-      <strong>${day.day} - ${day.type}</strong>
+      <strong>${day.day} - ${workoutLabel(day.type)}</strong>
       <p>Meta: ${day.targetDistance.toFixed(1).replace(".", ",")} km - intensidade ${day.intensity || "controlada"}</p>
       <p>${(day.rules || []).join(" - ")}</p>
       <div class="timeline-blocks">
@@ -725,7 +804,7 @@ function renderHistory() {
       <article class="list-item">
         <strong>${item.weekId} - ${item.decision}</strong>
         <p>${item.reason}</p>
-        <p>${item.stats.totalKm} km na semana - pace ${item.stats.avgPace} - recuperacao ${item.stats.recoveryScore || "-"}%</p>
+        <p>${item.stats.totalKm} km na semana - pace ${item.stats.avgPace} - recuperação ${item.stats.recoveryScore || "-"}%</p>
       </article>
     `).join("")
     : '<article class="list-item">Nenhuma decisao semanal registrada.</article>';
@@ -737,6 +816,7 @@ function destroyCharts() {
 }
 
 function renderCharts() {
+  if (typeof Chart === "undefined") return;
   destroyCharts();
   const weightCtx = document.getElementById("weight-chart");
   const performanceCtx = document.getElementById("performance-chart");
@@ -763,7 +843,7 @@ function renderCharts() {
   charts.recovery = new Chart(recoveryCtx, {
     type: "radar",
     data: {
-      labels: ["Agua media", "Cansaco", "Dor muscular", "Dor articular"],
+      labels: ["Água média", "Cansaço", "Dor muscular", "Dor articular"],
       datasets: [{
         label: "Recuperacao",
         data: [
@@ -776,7 +856,7 @@ function renderCharts() {
         backgroundColor: "rgba(142, 240, 160, 0.18)"
       }]
     },
-    options: baseChartOptions("Recuperacao")
+    options: baseChartOptions("Recuperação")
   });
 }
 
@@ -806,13 +886,40 @@ function renderApp() {
   renderCharts();
 }
 
+function activateTab(tabId) {
+  const target = document.getElementById(tabId);
+  if (!target) return;
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach((item) => {
+    item.classList.toggle("active", item.dataset.tab === tabId);
+  });
+  target.classList.add("active");
+  if (tabId !== "onboarding") renderCharts();
+}
+
 function bindTabs() {
-  document.querySelectorAll(".tab").forEach((button) => {
+  document.querySelectorAll("[data-tab]").forEach((button) => {
+    button.addEventListener("click", () => activateTab(button.dataset.tab));
+  });
+}
+
+function bindSubtabs() {
+  document.querySelectorAll(".subtab").forEach((button) => {
     button.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
-      document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
-      button.classList.add("active");
-      document.getElementById(button.dataset.tab).classList.add("active");
+      const group = button.dataset.subtabGroup;
+      const subtab = button.dataset.subtab;
+      document.querySelectorAll(`.subtab[data-subtab-group="${group}"]`).forEach((item) => {
+        item.classList.toggle("active", item === button);
+      });
+      const groupPanels = {
+        training: ["training-plan", "training-feedback"],
+        health: ["health-water", "health-fasting", "health-weight"],
+        history: ["history-summary", "history-workouts", "history-backup"]
+      };
+      (groupPanels[group] || []).forEach((id) => {
+        document.getElementById(id)?.classList.toggle("active", id === subtab);
+      });
+      renderCharts();
     });
   });
 }
@@ -822,6 +929,11 @@ function bindForms() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
+    const selectedDays = data.getAll("days");
+    if (!selectedDays.length) {
+      alert("Selecione pelo menos um dia disponível para treino.");
+      return;
+    }
     state.profile = {
       name: data.get("name"),
       age: Number(data.get("age")),
@@ -833,11 +945,21 @@ function bindForms() {
       primaryGoal: data.get("primaryGoal"),
       secondaryGoal: data.get("secondaryGoal"),
       restriction: data.get("restriction"),
-      days: data.getAll("days")
+      walkPractice: data.get("walkPractice"),
+      runPractice: data.get("runPractice"),
+      walkKm: Number(data.get("walkKm") || 0),
+      runKm: Number(data.get("runKm") || 0),
+      lastWorkout: data.get("lastWorkout"),
+      lastPace: data.get("lastPace"),
+      recentInjury: data.get("recentInjury"),
+      abandonedBefore: data.get("abandonedBefore"),
+      sleepHours: Number(data.get("sleepHours") || 0),
+      days: selectedDays
     };
     state.weightHistory.push({ date: todayKey(), value: state.profile.weight });
     saveState();
     renderApp();
+    activateTab("dashboard");
   });
 
   document.getElementById("feedback-form").addEventListener("submit", (event) => {
@@ -853,6 +975,7 @@ function bindForms() {
       distance,
       duration: data.get("duration"),
       pace: data.get("pace"),
+      influence: data.get("influence"),
       fatigue: Number(data.get("fatigue")),
       musclePain: Number(data.get("musclePain")),
       kneePain: Number(data.get("kneePain")),
@@ -883,20 +1006,19 @@ function bindForms() {
 
 function bindActions() {
   document.getElementById("generate-plan-btn").addEventListener("click", () => {
-    if (!state.profile) return;
+    if (!state.profile) {
+      activateTab("profile");
+      return;
+    }
     state.weeklyPlan = buildWeeklyPlan(state.profile);
     state.generatedAt = new Date().toISOString();
+    selectedPlanDay = getTodayWorkout()?.day || state.weeklyPlan.days[0]?.day || null;
     saveState();
     renderApp();
+    activateTab("training");
   });
 
   document.getElementById("generate-summary-btn").addEventListener("click", generateWeeklySummary);
-
-  document.getElementById("load-demo-btn").addEventListener("click", () => {
-    state = createDanielDemoState();
-    saveState();
-    renderApp();
-  });
 
   document.querySelectorAll(".water-btn").forEach((button) => {
     button.addEventListener("click", () => {
@@ -953,6 +1075,13 @@ function bindActions() {
     saveState();
     renderPlan();
   });
+
+  document.getElementById("day-filter").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-plan-day]");
+    if (!button) return;
+    selectedPlanDay = button.dataset.planDay;
+    renderPlan();
+  });
 }
 
 function registerServiceWorker() {
@@ -964,9 +1093,11 @@ function registerServiceWorker() {
 function init() {
   setSelectOptions();
   bindTabs();
+  bindSubtabs();
   bindForms();
   bindActions();
   renderApp();
+  activateTab(state.profile ? "dashboard" : "onboarding");
   registerServiceWorker();
 }
 

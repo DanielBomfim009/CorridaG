@@ -1,125 +1,129 @@
 # Arquitetura CorridaG
 
-## Visao geral
+## Visão Geral
 
-O CorridaG e um PWA mobile-first de cardio com decisao local baseada em regras.
-Toda a inteligencia roda no navegador com persistencia em `localStorage`, sem backend,
-sem login e sem dependencias de IA externa.
+O CorridaG é um PWA mobile-first de cardio com decisão local baseada em regras.
+Toda a inteligência roda no navegador com persistência em `localStorage`, sem
+backend, sem login e sem dependências de IA externa.
 
 ## Camadas
 
 ### 1. Interface
 
-- `index.html`: estrutura semantica do app, secoes e formularios.
-- `styles.css`: design mobile-first, sistema visual e responsividade.
+- `index.html`: estrutura semântica do app, telas, abas e formulários.
+- `styles.css`: design mobile-first, tema visual, navegação inferior e responsividade.
 
-### 2. Aplicacao
+### 2. Aplicação
 
-- `app.js`: orquestracao principal do estado, renderizacao, eventos e regras.
+- `app.js`: orquestração principal do estado, renderização, eventos e regras.
 
 Responsabilidades principais:
 
-- inicializar o estado
-- hidratar dados persistidos
-- reagir a formularios e botoes
-- recalcular indicadores
-- gerar treinos semanais
-- gerar analises do personal
-- alimentar os graficos
+- Inicializar o estado.
+- Hidratar dados persistidos.
+- Reagir a formulários, abas e botões.
+- Recalcular indicadores.
+- Gerar treinos semanais.
+- Gerar análises do personal.
+- Alimentar os gráficos.
 
-### 3. Motor inteligente
+### 3. Motor Inteligente
 
-Implementado em `app.js` por funcoes puras e regras declarativas.
+Implementado em `app.js` por funções puras e regras declarativas.
 
 Entradas analisadas:
 
-- perfil
-- IMC
-- faixa etaria
-- restricoes
-- risco ortopedico
-- risco cardiometabolico
-- disponibilidade semanal
-- objetivo primario
-- objetivo secundario
-- historico recente
-- aderencia
-- tendencia de pace
-- hidratacao
-- jejum
-- regularidade
-- fadiga
-- dor muscular
-- dor articular
+- Perfil.
+- IMC.
+- Faixa etária.
+- Restrições.
+- Risco ortopédico.
+- Risco cardiometabólico.
+- Disponibilidade semanal.
+- Objetivo primário.
+- Objetivo secundário.
+- Prática atual de caminhada e corrida.
+- Histórico recente.
+- Aderência.
+- Tendência de pace.
+- Hidratação.
+- Jejum.
+- Sono.
+- Regularidade.
+- Fadiga.
+- Dor muscular.
+- Dor articular.
 
-Saidas geradas:
+Saídas geradas:
 
-- plano semanal
-- treino do dia
-- decisao semanal
-- analise do personal
-- recomendacoes de seguranca
-- risco do perfil
-- intensidade por treino
-- regras aplicadas no plano
+- Plano semanal.
+- Treino do dia.
+- Decisão semanal.
+- Análise do personal.
+- Recomendações de segurança.
+- Risco do perfil.
+- Intensidade por treino.
+- Regras aplicadas no plano.
 
-O motor nao tenta ser uma lista fechada de casos. Ele usa uma matriz expansivel
-de sinais, pesos, redutores e gatilhos. Cada pessoa passa por uma avaliacao de
-risco antes da montagem do plano, e cada semana passa por uma nova avaliacao de
+O motor não tenta ser uma lista fechada de casos. Ele usa uma matriz expansível
+de sinais, pesos, redutores e gatilhos. Cada pessoa passa por uma avaliação de
+risco antes da montagem do plano, e cada semana passa por uma nova avaliação de
 resposta ao treino.
 
-### 4. Persistencia
+### 4. Persistência
 
-Persistencia local em `localStorage` com um unico snapshot versionado:
+Persistência local em `localStorage` com um único snapshot versionado:
 
 - `corridag-state`
 
-Colecoes salvas:
+Coleções salvas:
 
-- perfil
-- metas
-- treinos semanais
-- historico de treinos
-- feedbacks
-- peso
-- agua
-- jejum
-- decisoes
+- Perfil.
+- Metas.
+- Treinos semanais.
+- Histórico de treinos.
+- Feedbacks.
+- Peso.
+- Água.
+- Jejum.
+- Decisões.
 
-### 5. Visualizacao
+### 5. Visualização
 
-- cards para resumo diario
-- timeline de treino em blocos
-- tabelas de historico
-- graficos com Chart.js
+- Dashboard para resumo diário.
+- Plano semanal em blocos.
+- Feedback pós-treino.
+- Saúde com água, jejum e peso.
+- Histórico com análises, treinos e backup.
+- Gráficos com Chart.js.
 
 ### 6. PWA
 
 - `manifest.json`
 - `service-worker.js`
-- cache de shell do app para uso repetido
+- Cache do shell do app para uso repetido.
 
-## Fluxo principal
+## Fluxo Principal
 
-1. Usuario cadastra perfil e disponibilidade.
-2. Sistema calcula IMC, perfil de risco e sugestao-base.
-3. Motor gera um plano semanal estavel.
-4. Usuario executa o treino e registra feedback.
+1. Usuário passa pelo onboarding e cadastra perfil/disponibilidade.
+2. Sistema calcula IMC, risco do perfil e sugestão-base.
+3. Motor gera um plano semanal estável.
+4. Usuário executa o treino e registra feedback.
 5. Sistema classifica a semana como `MANTER`, `REDUZIR` ou `EVOLUIR`.
-6. A alteracao real do treino so entra na semana seguinte.
+6. A alteração real do treino só entra na semana seguinte, salvo risco imediato.
 
-## Regras-chave
+## Regras-Chave
 
-- seguranca tem prioridade maxima
-- impacto reduz ao detectar dor articular relevante
-- perfis com IMC alto, restricao articular ou risco cardiometabolico recebem carga mais conservadora
-- usuarios iniciantes ou pouco ativos passam por fase de adaptacao antes de progressao
-- treinos incompletos, fadiga alta, queda de pace ou jejum longo reduzem a prontidao
-- treino so muda semanalmente, salvo risco
-- evolucao depende de regularidade + baixa fadiga + ausencia de dor articular + recuperacao suficiente
-- hidratacao e jejum modulam a analise, nao substituem os sinais de seguranca
+- Segurança tem prioridade máxima.
+- Impacto reduz ao detectar dor articular relevante.
+- Perfis com IMC alto, restrição articular ou risco cardiometabólico recebem carga mais conservadora.
+- Usuários iniciantes ou pouco ativos passam por fase de adaptação antes de progressão.
+- Treinos incompletos, fadiga alta, queda de pace, sono baixo ou jejum longo reduzem a prontidão.
+- O treino só muda semanalmente, salvo risco.
+- Evolução depende de regularidade, baixa fadiga, ausência de dor articular e recuperação suficiente.
+- Hidratação, sono e jejum modulam a análise, mas não substituem os sinais de segurança.
 
-## Preparacao para GitHub Pages
+## Preparação Para GitHub Pages
 
-O projeto usa apenas arquivos estaticos e caminhos relativos, entao pode ser publicado
-diretamente no GitHub Pages sem etapa de build.
+O projeto usa apenas arquivos estáticos e caminhos relativos, então pode ser
+publicado diretamente no GitHub Pages sem etapa de build.
