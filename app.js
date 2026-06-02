@@ -68,6 +68,7 @@ let selectedPlanDay = null;
 const initialState = () => ({
   profile: null,
   waterToday: 0,
+  waterDate: todayKey(),
   waterHistory: [],
   fastingSessions: [],
   weightHistory: [],
@@ -93,6 +94,15 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function normalizeDailyState() {
+  const today = todayKey();
+  if (state.waterDate !== today) {
+    state.waterToday = 0;
+    state.waterDate = today;
+    saveState();
+  }
+}
+
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }
@@ -113,6 +123,44 @@ function formatNumber(value, suffix = "") {
 
 function average(items) {
   return items.length ? items.reduce((sum, item) => sum + item, 0) / items.length : 0;
+}
+
+function weekKeyFromDate(dateValue) {
+  return currentWeekId(new Date(`${dateValue}T12:00:00`));
+}
+
+function dailyWaterTotals() {
+  const totals = new Map();
+  state.waterHistory.forEach((entry) => {
+    totals.set(entry.date, Math.max(totals.get(entry.date) || 0, entry.amount || 0));
+  });
+  return [...totals.entries()].map(([date, amount]) => ({ date, amount }));
+}
+
+function weeklyWorkoutStats() {
+  const groups = new Map();
+  state.workoutHistory.forEach((workout) => {
+    const key = workout.weekId || weekKeyFromDate(workout.date);
+    if (!groups.has(key)) {
+      groups.set(key, { week: key, km: 0, completed: 0, paceValues: [], fatigueValues: [], jointPainValues: [] });
+    }
+    const group = groups.get(key);
+    group.km += workout.distance || 0;
+    if (workout.completed !== false) group.completed += 1;
+    const pace = parsePaceToSeconds(workout.pace);
+    if (pace) group.paceValues.push(pace);
+    group.fatigueValues.push(workout.fatigue || 0);
+    group.jointPainValues.push(jointPain(workout));
+  });
+
+  return [...groups.values()].map((group) => ({
+    week: group.week,
+    km: Number(group.km.toFixed(1)),
+    completed: group.completed,
+    avgPaceSeconds: average(group.paceValues),
+    avgFatigue: Number(average(group.fatigueValues).toFixed(1)),
+    avgJointPain: Number(average(group.jointPainValues).toFixed(1))
+  }));
 }
 
 function calculateBMI(weight, height) {
@@ -219,7 +267,7 @@ function analyzeProfile(profile) {
     score += 3;
     distance -= 0.8;
     runRatio -= 0.16;
-    flags.push("IMC elevado: progressao mais conservadora");
+    flags.push("IMC elevado: progressão mais conservadora");
   } else if (bmi >= 30) {
     score += 2;
     distance -= 0.4;
@@ -235,7 +283,7 @@ function analyzeProfile(profile) {
   if (profile.age < 18) {
     score += 1;
     distance -= 0.2;
-    flags.push("usuario jovem: progressao moderada");
+    flags.push("usuário jovem: progressão moderada");
   } else if (profile.age >= 60) {
     score += 3;
     distance -= 0.7;
@@ -277,13 +325,13 @@ function analyzeProfile(profile) {
     score += 1;
     distance -= 0.2;
     runRatio -= 0.08;
-    flags.push("sem rotina de caminhada: adaptacao inicial");
+    flags.push("sem rotina de caminhada: adaptação inicial");
   }
 
   if (profile.runPractice === "sim" && runKm > 0) {
     distance += clamp(runKm * 0.12, 0.1, 0.9);
     runRatio += clamp(runKm * 0.03, 0.04, 0.16);
-    flags.push("experiencia de corrida considerada");
+    flags.push("experiência de corrida considerada");
   } else if (profile.runPractice === "nao") {
     runRatio -= 0.1;
   }
@@ -292,7 +340,7 @@ function analyzeProfile(profile) {
     score += 3;
     distance -= 0.6;
     runRatio -= 0.18;
-    flags.push("lesao recente: reduzir carga e impacto");
+    flags.push("lesão recente: reduzir carga e impacto");
   }
 
   if (profile.abandonedBefore === "sim") {
@@ -313,7 +361,7 @@ function analyzeProfile(profile) {
 
   if (lastPaceSeconds >= 720) {
     runRatio -= 0.08;
-    flags.push("pace recente indica prioridade em base aerobica");
+    flags.push("pace recente indica prioridade em base aeróbica");
   } else if (lastPaceSeconds && lastPaceSeconds <= 540 && profile.runPractice === "sim") {
     runRatio += 0.06;
     flags.push("pace recente permite corrida leve controlada");
@@ -393,7 +441,7 @@ function analyzeTrainingContext(feedbacks, profile = state.profile) {
     .map((item) => item.influence)
     .filter((item) => item && item !== "nada diferente")
     .forEach((item) => signals.push(`contexto do treino: ${item}`));
-  if (waterAverage && waterAverage < 2500) signals.push("hidratacao baixa");
+  if (waterAverage && waterAverage < 2500) signals.push("hidratação baixa");
   if (Math.max(fastingAverage, activeFastHours) >= 16) signals.push("jejum longo afetando recuperação");
   if (profileAnalysis.riskLevel === "alto") signals.push("perfil de risco alto");
 
@@ -451,14 +499,14 @@ function classifyDecision(feedbacks, profile = state.profile) {
   if (context.avgFatigue <= 6 && context.avgMusclePain <= 4 && context.jointPainMax <= 2) {
     return {
       decision: "MANTER",
-      reason: "Manter o plano: a resposta foi aceitavel, mas o sistema ainda precisa consolidar regularidade antes de aumentar carga.",
+      reason: "Treino bem executado. Cansaço controlado e sem dor articular. Não há necessidade de alterar o plano da semana.",
       context
     };
   }
 
   return {
     decision: "MANTER",
-    reason: `Manter com cautela: ${context.signals.join(", ") || "sinais mistos de adaptacao"}.`,
+    reason: `Manter com cautela: ${context.signals.join(", ") || "sinais mistos de adaptação"}.`,
     context
   };
 }
@@ -489,7 +537,7 @@ function createBlocks(type, distance, profile, analysis) {
     return [
       { range: `0,0 -> ${warmup.toFixed(1).replace(".", ",")} km`, label: "Caminhada de aquecimento", pace: pace.walk },
       { range: `${warmup.toFixed(1).replace(".", ",")} -> ${Math.max(warmup + 0.7, distance - 0.6).toFixed(1).replace(".", ",")} km`, label: "Caminhada longa sustentada", pace: pace.recovery },
-      { range: `${Math.max(warmup + 0.7, distance - 0.6).toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Desaceleracao e respiracao", pace: pace.walk }
+      { range: `${Math.max(warmup + 0.7, distance - 0.6).toFixed(1).replace(".", ",")} -> ${distance.toFixed(1).replace(".", ",")} km`, label: "Desaceleração e respiração", pace: pace.walk }
     ];
   }
 
@@ -639,7 +687,7 @@ function generateRecommendations() {
   if (bmi >= 30) recs.push("Controlar impacto pelo IMC");
   if (analysis.riskLevel !== "baixo") recs.push(`Risco ${analysis.riskLevel}`);
   if (analysis.flags[0]) recs.push(analysis.flags[0]);
-  if (state.waterToday < 2000) recs.push("Aumentar hidratacao hoje");
+  if (state.waterToday < 2000) recs.push("Aumentar hidratação hoje");
   if (getFastingHours() >= 14) recs.push("Observar energia antes do treino");
   if (state.weeklyPlan?.decisionBasis) recs.push(`Base semanal: ${state.weeklyPlan.decisionBasis}`);
   return recs.length ? recs : ["Plano estável", "Segurança primeiro", "Evolução semanal"];
@@ -671,6 +719,36 @@ function generateWeeklySummary() {
   state.decisions.push(summary);
   saveState();
   renderApp();
+}
+
+function maybeGenerateSundaySummary() {
+  if (new Date().getDay() !== 0 || !state.weeklyPlan) return;
+  const weekId = state.weeklyPlan.weekId || currentWeekId();
+  if (state.decisions.some((decision) => decision.weekId === weekId)) return;
+  const currentFeedbacks = getLastWeekFeedback();
+  if (!currentFeedbacks.length) return;
+
+  const decision = classifyDecision(currentFeedbacks, state.profile);
+  const context = decision.context;
+  state.decisions.push({
+    weekId,
+    createdAt: new Date().toISOString(),
+    auto: true,
+    decision: decision.decision,
+    reason: decision.reason,
+    signals: context.signals,
+    stats: {
+      totalKm: Number(context.totalKm.toFixed(1)),
+      avgPace: context.avgPace,
+      completed: context.completed,
+      adherence: Number(context.adherence.toFixed(2)),
+      recoveryScore: context.recoveryScore,
+      riskLevel: context.profileAnalysis.riskLevel,
+      waterAverage: Math.round(context.waterAverage),
+      currentWeight: getLatestWeight()
+    }
+  });
+  saveState();
 }
 
 function setSelectOptions() {
@@ -714,6 +792,9 @@ function renderMetrics() {
   document.getElementById("dashboard-greeting").textContent = greetingName;
   document.getElementById("metric-weight").textContent = weight ? `${weight.toFixed(1).replace(".", ",")} kg` : "-";
   document.getElementById("metric-bmi").textContent = bmi ? `IMC ${bmi.toFixed(1).replace(".", ",")}` : "IMC -";
+  document.getElementById("metric-target-weight").textContent = state.profile?.targetWeight
+    ? `Meta: ${Number(state.profile.targetWeight).toFixed(1).replace(".", ",")} kg`
+    : "Meta não definida";
   document.getElementById("metric-water").textContent = `${state.waterToday} ml`;
   document.getElementById("metric-fasting").textContent = `${fastHours.toFixed(1).replace(".", ",")}h`;
   document.getElementById("metric-fasting-status").textContent = getActiveFast() ? "Sessão ativa" : "Sem sessão ativa";
@@ -753,7 +834,7 @@ function renderPlan() {
   if (!plan) {
     badge.textContent = "Sem semana ativa";
     if (dayFilter) dayFilter.innerHTML = "";
-    container.innerHTML = '<div class="list-item">Gere o plano semanal apos salvar o perfil.</div>';
+    container.innerHTML = '<div class="list-item">Gere o plano semanal após salvar o perfil.</div>';
     return;
   }
 
@@ -774,6 +855,7 @@ function renderPlan() {
       <strong>${day.day} - ${workoutLabel(day.type)}</strong>
       <p>Meta: ${day.targetDistance.toFixed(1).replace(".", ",")} km - intensidade ${day.intensity || "controlada"}</p>
       <p>${(day.rules || []).join(" - ")}</p>
+      ${renderBlockProgress(day)}
       <div class="timeline-blocks">
         ${day.blocks.map((block, index) => `
           <button class="timeline-block ${block.done ? "done" : ""}" data-day="${day.day}" data-block="${index}">
@@ -785,15 +867,27 @@ function renderPlan() {
   `).join("");
 }
 
+function renderBlockProgress(day) {
+  const done = day.blocks.filter((block) => block.done).length;
+  const total = Math.max(1, day.blocks.length);
+  const percent = Math.round((done / total) * 100);
+  return `
+    <p>Progresso do treino: ${percent}%</p>
+    <div class="progress-track" aria-label="Progresso do treino">
+      <span class="progress-fill" style="--progress-width: ${percent}%"></span>
+    </div>
+  `;
+}
+
 function renderHistory() {
   const historyList = document.getElementById("history-list");
   historyList.innerHTML = state.workoutHistory.length
     ? [...state.workoutHistory].reverse().map((item) => `
       <article class="list-item">
         <strong>${item.day} - ${item.distance.toFixed(1).replace(".", ",")} km</strong>
-        <p>${item.duration} - pace ${item.pace} - ${item.completed === false ? "incompleto" : "concluido"}</p>
+        <p>${item.duration} - pace ${item.pace} - ${item.completed === false ? "incompleto" : "concluído"}</p>
         <p>Fadiga ${item.fatigue}/10 - Dor muscular ${item.musclePain}/10 - Dor articular ${jointPain(item)}/10</p>
-        <p>${item.notes || "Sem observacoes."}</p>
+        <p>${item.notes || "Sem observações."}</p>
       </article>
     `).join("")
     : '<article class="list-item">Nenhum treino registrado ainda.</article>';
@@ -807,7 +901,20 @@ function renderHistory() {
         <p>${item.stats.totalKm} km na semana - pace ${item.stats.avgPace} - recuperação ${item.stats.recoveryScore || "-"}%</p>
       </article>
     `).join("")
-    : '<article class="list-item">Nenhuma decisao semanal registrada.</article>';
+    : '<article class="list-item">Nenhuma decisão semanal registrada.</article>';
+
+  const fastingHistory = document.getElementById("fasting-history");
+  if (fastingHistory) {
+    const closedSessions = state.fastingSessions.filter((session) => session.end).slice(-5).reverse();
+    fastingHistory.innerHTML = closedSessions.length
+      ? closedSessions.map((session) => `
+        <article class="list-item">
+          <strong>${new Date(session.start).toLocaleDateString("pt-BR")} - ${session.durationHours || 0}h</strong>
+          <p>Início ${new Date(session.start).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} - Fim ${new Date(session.end).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
+        </article>
+      `).join("")
+      : '<article class="list-item">Nenhum jejum finalizado ainda.</article>';
+  }
 }
 
 function destroyCharts() {
@@ -820,7 +927,18 @@ function renderCharts() {
   destroyCharts();
   const weightCtx = document.getElementById("weight-chart");
   const performanceCtx = document.getElementById("performance-chart");
+  const weeklyCtx = document.getElementById("weekly-chart");
+  const paceCtx = document.getElementById("pace-chart");
   const recoveryCtx = document.getElementById("recovery-chart");
+  const weeklyStats = weeklyWorkoutStats();
+  const waterTotals = dailyWaterTotals().slice(-7);
+  const paceLabels = weeklyStats.length ? weeklyStats.map((item) => item.week) : waterTotals.map((item) => item.date);
+  const waterByPaceLabel = weeklyStats.length
+    ? weeklyStats.map((week) => {
+      const entries = dailyWaterTotals().filter((item) => weekKeyFromDate(item.date) === week.week);
+      return Number((average(entries.map((item) => item.amount)) / 1000 || 0).toFixed(1));
+    })
+    : waterTotals.map((item) => Number((item.amount / 1000).toFixed(1)));
 
   charts.weight = new Chart(weightCtx, {
     type: "line",
@@ -835,9 +953,37 @@ function renderCharts() {
     type: "bar",
     data: {
       labels: state.workoutHistory.map((item) => item.day),
-      datasets: [{ label: "Km por treino", data: state.workoutHistory.map((item) => item.distance), backgroundColor: "#3f8cff" }]
+      datasets: [
+        { label: "Km por treino", data: state.workoutHistory.map((item) => item.distance), backgroundColor: "#3f8cff" },
+        { label: "Cansaço", data: state.workoutHistory.map((item) => item.fatigue || 0), backgroundColor: "rgba(255, 209, 102, 0.72)" },
+        { label: "Dor articular", data: state.workoutHistory.map((item) => jointPain(item)), backgroundColor: "rgba(255, 95, 109, 0.72)" }
+      ]
     },
-    options: baseChartOptions("Performance")
+    options: baseChartOptions("Treinos")
+  });
+
+  charts.weekly = new Chart(weeklyCtx, {
+    type: "line",
+    data: {
+      labels: weeklyStats.map((item) => item.week),
+      datasets: [
+        { label: "Km por semana", data: weeklyStats.map((item) => item.km), borderColor: "#1e90ff", backgroundColor: "rgba(30, 144, 255, 0.14)", tension: 0.32 },
+        { label: "Frequência", data: weeklyStats.map((item) => item.completed), borderColor: "#8df23f", backgroundColor: "rgba(141, 242, 63, 0.12)", tension: 0.32 }
+      ]
+    },
+    options: baseChartOptions("Evolução cardio")
+  });
+
+  charts.pace = new Chart(paceCtx, {
+    type: "line",
+    data: {
+      labels: paceLabels,
+      datasets: [
+        { label: "Pace médio (min/km)", data: weeklyStats.length ? weeklyStats.map((item) => Number((item.avgPaceSeconds / 60 || 0).toFixed(2))) : waterTotals.map(() => 0), borderColor: "#00e6a8", tension: 0.32 },
+        { label: "Água média (L)", data: waterByPaceLabel, borderColor: "#9aaec6", tension: 0.32 }
+      ]
+    },
+    options: baseChartOptions("Pace e água")
   });
 
   charts.recovery = new Chart(recoveryCtx, {
@@ -845,7 +991,7 @@ function renderCharts() {
     data: {
       labels: ["Água média", "Cansaço", "Dor muscular", "Dor articular"],
       datasets: [{
-        label: "Recuperacao",
+        label: "Recuperação",
         data: [
           average(state.waterHistory.slice(-7).map((item) => item.amount || 0)) / 400,
           average(state.workoutHistory.slice(-7).map((item) => item.fatigue || 0)),
@@ -939,6 +1085,7 @@ function bindForms() {
       age: Number(data.get("age")),
       sex: data.get("sex"),
       weight: Number(data.get("weight")),
+      targetWeight: Number(data.get("targetWeight") || 0),
       height: Number(data.get("height")),
       level: data.get("level"),
       schedule: data.get("schedule"),
@@ -1022,8 +1169,10 @@ function bindActions() {
 
   document.querySelectorAll(".water-btn").forEach((button) => {
     button.addEventListener("click", () => {
+      normalizeDailyState();
       const amount = Number(button.dataset.amount);
       state.waterToday += amount;
+      state.waterDate = todayKey();
       state.waterHistory.push({ date: todayKey(), amount: state.waterToday });
       saveState();
       renderApp();
@@ -1091,6 +1240,8 @@ function registerServiceWorker() {
 }
 
 function init() {
+  normalizeDailyState();
+  maybeGenerateSundaySummary();
   setSelectOptions();
   bindTabs();
   bindSubtabs();

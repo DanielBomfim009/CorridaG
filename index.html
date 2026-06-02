@@ -68,6 +68,7 @@
             <span>Peso atual</span>
             <strong id="metric-weight">-</strong>
             <small id="metric-bmi">IMC -</small>
+            <small id="metric-target-weight">Meta -</small>
           </article>
           <article class="metric-card">
             <span>Água do dia</span>
@@ -206,6 +207,7 @@
             <button id="start-fast-btn">Iniciar</button>
             <button id="end-fast-btn" class="secondary-action">Encerrar</button>
           </div>
+          <div id="fasting-history" class="list-stack compact-list"></div>
         </section>
 
         <section class="subpanel" id="health-weight">
@@ -235,6 +237,8 @@
         <section class="subpanel active" id="history-summary">
           <div class="chart-grid">
             <canvas id="performance-chart"></canvas>
+            <canvas id="weekly-chart"></canvas>
+            <canvas id="pace-chart"></canvas>
             <canvas id="recovery-chart"></canvas>
           </div>
           <div id="decision-list" class="list-stack"></div>
@@ -281,6 +285,9 @@
           </label>
           <label>Peso atual (kg)
             <input type="number" step="0.1" name="weight" required>
+          </label>
+          <label>Meta de peso (kg)
+            <input type="number" step="0.1" name="targetWeight" placeholder="Ex.: 95">
           </label>
           <label>Altura (m)
             <input type="number" step="0.01" name="height" required>

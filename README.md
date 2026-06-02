@@ -13,7 +13,8 @@ com segurança.
 - Motor inteligente com pontuação de risco e sinais de recuperação.
 - Plano semanal baseado em perfil, objetivos, restrições, histórico e disponibilidade.
 - Registro de treino concluído ou incompleto.
-- Gráficos com Chart.js.
+- Meta de peso, hidratação diária, histórico de jejum e análise semanal.
+- Gráficos de peso, km por treino, km por semana, pace, água, cansaço, dor articular e frequência.
 - Exportação e importação de backup JSON.
 - `manifest.json` e `service-worker.js` para PWA.
 

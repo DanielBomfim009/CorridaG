@@ -79,6 +79,7 @@ Persistência local em `localStorage` com um único snapshot versionado:
 Coleções salvas:
 
 - Perfil.
+- Meta de peso.
 - Metas.
 - Treinos semanais.
 - Histórico de treinos.
@@ -95,7 +96,7 @@ Coleções salvas:
 - Feedback pós-treino.
 - Saúde com água, jejum e peso.
 - Histórico com análises, treinos e backup.
-- Gráficos com Chart.js.
+- Gráficos de peso, km por treino, km por semana, pace, água, cansaço, dor articular e frequência.
 
 ### 6. PWA
 
@@ -111,6 +112,7 @@ Coleções salvas:
 4. Usuário executa o treino e registra feedback.
 5. Sistema classifica a semana como `MANTER`, `REDUZIR` ou `EVOLUIR`.
 6. A alteração real do treino só entra na semana seguinte, salvo risco imediato.
+7. Aos domingos, se houver dados da semana, o app registra uma análise semanal sem duplicar decisões.
 
 ## Regras-Chave
 

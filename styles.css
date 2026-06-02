@@ -347,6 +347,10 @@ h3 {
   font-size: 1.35rem;
 }
 
+.metric-card small {
+  display: block;
+}
+
 .next-workout-card {
   position: relative;
   margin-top: 10px;
@@ -414,6 +418,23 @@ h3 {
   margin: 7px 0 0;
   font-size: 0.88rem;
   line-height: 1.44;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  width: var(--progress-width, 0%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint), var(--green));
 }
 
 .timeline-blocks {
@@ -567,6 +588,14 @@ textarea:focus {
   display: block;
   margin-top: 10px;
   line-height: 1.5;
+}
+
+.compact-list {
+  margin-top: 10px;
+}
+
+.compact-list .list-item {
+  padding: 10px;
 }
 
 .inline-form {
