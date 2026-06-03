@@ -1,29 +1,30 @@
-# Próximas Melhorias
+# Melhorias Futuras
 
 ## Produto
 
-- Transformar a resposta do personal em uma linha do tempo de acompanhamento.
-- Criar um modo de primeira semana com perguntas ainda mais curtas.
-- Adicionar mensagens específicas para dor recorrente no mesmo local.
-- Criar uma tela de revisão semanal com apenas três dados: adesão, dor e decisão.
-
-## Interface
-
-- Refinar microinterações dos cards de treino.
-- Adicionar estado visual para treino finalizado.
-- Melhorar o modo PWA instalado em celulares.
-- Criar uma tela vazia mais elegante para usuários sem perfil.
+- Criar tela "Plano da semana" com resumo dos tipos de treino.
+- Adicionar histórico de decisões do personal em linha do tempo.
+- Criar mensagem de alerta para dor repetida no mesmo local.
+- Criar modo "não me senti bem hoje" para reduzir o treino antes da execução.
 
 ## Motor
 
-- Separar regras do motor em arquivo próprio.
-- Adicionar testes automatizados para `MANTER`, `REDUZIR` e `EVOLUIR`.
-- Considerar queda de desempenho por distância + tempo, sem transformar isso em dashboard.
-- Melhorar a recomendação de jejum com base no horário do treino.
+- Adicionar testes automatizados para personas fixas.
+- Criar ciclo de 4 semanas com semana de recuperação.
+- Adicionar progressão diferente por objetivo: emagrecimento, 5 km, 10 km, saúde e condicionamento.
+- Calcular tendência de pace usando os últimos 3 feedbacks.
+- Tratar aderência: faltas recorrentes reduzem progressão.
 
-## Não Fazer na V1
+## Interface
 
-- Copiar interface ou identidade do MFIT Personal.
-- Adicionar gráficos em excesso.
-- Adicionar login ou backend.
-- Adicionar treinos fora de cardio.
+- Criar onboarding por etapas em vez de formulário único.
+- Adicionar cartões de explicação curta antes de cada treino.
+- Melhorar visual do treino finalizado.
+- Criar resumo semanal sem excesso de gráficos.
+
+## Referências De Mercado Para Evoluir
+
+- Planos guiados para iniciantes.
+- Treinos adaptativos por feedback.
+- Plano montado por disponibilidade semanal.
+- Linguagem simples de coach, sem depender de termos técnicos.

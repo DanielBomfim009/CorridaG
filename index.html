@@ -21,36 +21,36 @@
           <span>Personal cardio digital</span>
         </div>
       </div>
-      <button class="icon-button" id="new-week-btn" type="button" aria-label="Gerar nova semana">↻</button>
+      <button class="icon-button" id="new-week-btn" type="button" aria-label="Gerar nova semana">Nova semana</button>
     </header>
 
     <main>
       <section class="screen active" id="home-screen">
-        <div class="hero-card">
-          <span class="eyebrow">Hoje</span>
-          <h1 id="home-title">Monte seu plano cardio</h1>
-          <p id="home-subtitle">Preencha o perfil para receber uma análise objetiva e um treino semanal seguro.</p>
-          <button class="primary-button" type="button" data-tab="profile-screen">Começar avaliação</button>
-        </div>
+        <article class="hero-card">
+          <span class="eyebrow">Plano inteligente</span>
+          <h1 id="home-title">Seu treino começa com avaliação.</h1>
+          <p id="home-subtitle">Responda perguntas fechadas. O app decide o treino, acompanha o resultado e ajusta o plano.</p>
+          <button class="primary-button" type="button" data-tab="profile-screen">Iniciar avaliação</button>
+        </article>
 
         <article class="coach-message">
           <div class="card-heading">
-            <span>Análise do personal</span>
+            <span>Personal</span>
             <strong id="home-decision">Aguardando perfil</strong>
           </div>
-          <p id="home-coach-text">O CorridaG vai analisar seu perfil antes de sugerir distância, pace e frequência.</p>
+          <p id="home-coach-text">O CorridaG não pergunta quanto você consegue correr. Ele estima com segurança, testa no treino diagnóstico e refina com seu feedback.</p>
         </article>
 
         <article class="main-workout-card">
           <div>
-            <span class="eyebrow" id="home-workout-day">Treino de hoje</span>
+            <span class="eyebrow" id="home-workout-day">Próximo treino</span>
             <h2 id="home-workout-distance">-</h2>
-            <p id="home-workout-type">O treino aparecerá após a avaliação.</p>
+            <p id="home-workout-type">O treino será criado após a avaliação.</p>
           </div>
           <button class="secondary-button" type="button" data-tab="training-screen">Ver treino</button>
         </article>
 
-        <div class="health-grid">
+        <section class="health-grid" aria-label="Resumo de saúde">
           <article>
             <span>Água</span>
             <strong id="home-water">0%</strong>
@@ -64,16 +64,16 @@
           <article>
             <span>Peso</span>
             <strong id="home-weight">-</strong>
-            <small id="home-weight-goal">Meta não definida</small>
+            <small id="home-weight-goal">Controle simples</small>
           </article>
-        </div>
+        </section>
       </section>
 
       <section class="screen" id="training-screen">
         <div class="screen-header">
           <span class="eyebrow">Treino</span>
-          <h1>Treino do dia</h1>
-          <p>Execute os blocos na ordem. O usuário não edita distância nem pace.</p>
+          <h1>Treino prescrito</h1>
+          <p>O app escolhe o treino. Você executa, informa o resultado e recebe a decisão do personal.</p>
         </div>
 
         <div id="day-selector" class="day-selector"></div>
@@ -81,7 +81,8 @@
         <article class="workout-hero">
           <span id="training-day">-</span>
           <h2 id="training-distance">Plano não gerado</h2>
-          <p id="training-type">Preencha o perfil para montar sua semana.</p>
+          <p id="training-type">Preencha o perfil para montar a primeira semana.</p>
+          <small id="training-purpose">Primeiro treino: diagnóstico seguro.</small>
           <div class="progress-line"><span id="training-progress"></span></div>
           <small id="training-progress-text">0% concluído</small>
         </article>
@@ -92,78 +93,124 @@
 
         <form id="feedback-form" class="feedback-card hidden">
           <div class="card-heading">
-            <span>Feedback do treino</span>
-            <strong>Resposta do personal</strong>
+            <span>Feedback estruturado</span>
+            <strong>Sem campo aberto</strong>
           </div>
 
-          <label>Conseguiu concluir?
+          <label>Você concluiu o treino?
             <select name="completed" required>
-              <option value="true">Sim</option>
-              <option value="false">Não</option>
+              <option value="sim">Sim</option>
+              <option value="parcial">Parcialmente</option>
+              <option value="nao">Não</option>
             </select>
           </label>
-          <label>Distância final (km)
-            <input type="number" step="0.01" min="0" name="distance" required>
-          </label>
-          <label>Tempo total
-            <input name="duration" placeholder="Ex.: 39:54" required>
-          </label>
-          <label>Cansaço (0-10)
-            <input type="number" min="0" max="10" name="fatigue" required>
-          </label>
-          <label>Dor articular (0-10)
-            <input type="number" min="0" max="10" name="jointPain" required>
-          </label>
-          <label>Observação
-            <textarea name="notes" rows="3" placeholder="Ex.: cansou, mas controlado"></textarea>
+
+          <div class="two-columns">
+            <label>Distância feita
+              <input type="number" step="0.01" min="0" name="distance" required>
+            </label>
+            <label>Tempo total em min
+              <input type="number" step="1" min="1" name="minutes" required>
+            </label>
+          </div>
+
+          <label>Como ficou o esforço?
+            <select name="effort" required>
+              <option value="leve">Leve</option>
+              <option value="controlado">Controlado</option>
+              <option value="alto">Alto</option>
+              <option value="muito_alto">Muito alto</option>
+            </select>
           </label>
 
-          <button class="primary-button" type="submit">Enviar feedback</button>
+          <label>Como terminou?
+            <select name="finishFeeling" required>
+              <option value="sobrou">Sobrou energia</option>
+              <option value="certo">No limite certo</option>
+              <option value="pesado">Pesado</option>
+              <option value="interrompido">Precisei parar</option>
+            </select>
+          </label>
+
+          <label>Dor articular
+            <select name="jointPain" required>
+              <option value="nenhuma">Nenhuma</option>
+              <option value="leve">Leve</option>
+              <option value="moderada">Moderada</option>
+              <option value="forte">Forte</option>
+            </select>
+          </label>
+
+          <label>Local da dor
+            <select name="painLocation" required>
+              <option value="nenhuma">Nenhuma</option>
+              <option value="joelho">Joelho</option>
+              <option value="canela">Canela</option>
+              <option value="tornozelo">Tornozelo</option>
+              <option value="coluna">Coluna</option>
+            </select>
+          </label>
+
+          <label>Dor muscular
+            <select name="musclePain" required>
+              <option value="nenhuma">Nenhuma</option>
+              <option value="leve">Leve</option>
+              <option value="moderada">Moderada</option>
+              <option value="forte">Forte</option>
+            </select>
+          </label>
+
+          <button class="primary-button" type="submit">Receber decisão</button>
         </form>
       </section>
 
       <section class="screen" id="personal-screen">
         <div class="screen-header">
           <span class="eyebrow">Personal</span>
-          <h1>Por que esse plano?</h1>
-          <p>Aqui o CorridaG explica a decisão como um treinador faria.</p>
+          <h1>Decisão explicada</h1>
+          <p>O corredor não precisa entender de treino. O app explica o que decidiu e por quê.</p>
         </div>
 
         <article class="coach-note">
-          <span>Análise completa</span>
-          <p id="personal-analysis">Preencha o perfil para receber a análise do personal.</p>
+          <span>Análise do perfil</span>
+          <p id="personal-analysis">Preencha o perfil para receber a análise inicial.</p>
         </article>
 
-        <div class="reason-grid">
+        <section class="reason-grid" aria-label="Justificativas do plano">
+          <article>
+            <span>Modelo</span>
+            <strong id="reason-model">-</strong>
+            <p id="reason-model-text">Aguardando perfil.</p>
+          </article>
           <article>
             <span>Distância</span>
             <strong id="reason-distance">-</strong>
             <p id="reason-distance-text">Aguardando perfil.</p>
           </article>
           <article>
-            <span>Pace</span>
+            <span>Ritmo guia</span>
             <strong id="reason-pace">-</strong>
             <p id="reason-pace-text">Aguardando perfil.</p>
           </article>
           <article>
-            <span>Frequência</span>
-            <strong id="reason-frequency">-</strong>
-            <p id="reason-frequency-text">Aguardando perfil.</p>
+            <span>Semana</span>
+            <strong id="reason-week">-</strong>
+            <p id="reason-week-text">Aguardando disponibilidade.</p>
           </article>
-        </div>
+        </section>
 
         <article class="decision-card">
           <span>Decisão atual</span>
           <strong id="personal-decision">Aguardando</strong>
-          <p id="personal-decision-text">Depois do primeiro feedback, a decisão ficará registrada aqui.</p>
+          <p id="personal-decision-text">Depois do treino diagnóstico, o app decide se mantém, reduz ou aumenta.</p>
         </article>
       </section>
 
       <section class="screen" id="health-screen">
         <div class="screen-header">
           <span class="eyebrow">Saúde</span>
-          <h1>Água, jejum e peso</h1>
-          <p>Somente controles que influenciam o treino e a recuperação.</p>
+          <h1>Suporte ao treino</h1>
+          <p>Água, jejum e peso só aparecem porque influenciam recuperação e objetivo.</p>
         </div>
 
         <article class="health-card">
@@ -171,7 +218,7 @@
             <span>Água</span>
             <strong id="water-goal">-</strong>
           </div>
-          <p id="water-advice">Preencha o perfil para calcular sua meta.</p>
+          <p id="water-advice">Preencha o perfil para calcular a meta.</p>
           <div class="progress-line"><span id="water-progress"></span></div>
           <small id="water-total">0 ml registrados hoje</small>
           <div class="quick-buttons">
@@ -200,7 +247,7 @@
             <span>Peso</span>
             <strong id="weight-current">-</strong>
           </div>
-          <p id="weight-advice">Registre o peso apenas quando fizer sentido. Sem transformar isso em obsessão diária.</p>
+          <p id="weight-advice">Use peso para acompanhar tendência, especialmente em objetivo de emagrecimento.</p>
           <form id="weight-form" class="inline-form">
             <input type="number" step="0.1" min="20" name="weight" placeholder="Peso atual">
             <button type="submit">Registrar</button>
@@ -212,56 +259,69 @@
       <section class="screen" id="profile-screen">
         <div class="screen-header">
           <span class="eyebrow">Perfil</span>
-          <h1>Avaliação inicial</h1>
-          <p>Responda uma vez. Depois o CorridaG aprende com seus feedbacks.</p>
+          <h1>Perguntas que viram regras.</h1>
+          <p>Sem pergunta aberta. Cada resposta aciona uma condição do motor.</p>
         </div>
 
         <form id="profile-form" class="profile-form">
-          <label>Nome
-            <input name="name" autocomplete="name" placeholder="Seu nome" required>
-          </label>
-          <div class="two-columns">
-            <label>Idade
-              <input type="number" min="10" max="100" name="age" required>
-            </label>
-            <label>Peso (kg)
-              <input type="number" step="0.1" min="20" name="weight" required>
-            </label>
-          </div>
-          <div class="two-columns">
-            <label>Altura (m)
-              <input type="number" step="0.01" min="1" name="height" required>
-            </label>
-            <label>Meta de peso
-              <input type="number" step="0.1" min="20" name="targetWeight" placeholder="Opcional">
-            </label>
-          </div>
-          <label>Nível atual
-            <select name="level" required>
-              <option value="nunca treinou">Nunca treinou</option>
-              <option value="retorno">Retorno</option>
-              <option value="pouco ativo">Pouco ativo</option>
-              <option value="intermediario">Intermediário</option>
-              <option value="avancado">Avançado</option>
-            </select>
-          </label>
-          <label>Objetivo
+          <label>Objetivo principal
             <select name="goal" required>
               <option value="emagrecimento">Emagrecimento</option>
               <option value="saude">Saúde</option>
               <option value="condicionamento">Condicionamento</option>
-              <option value="correr 5 km">Correr 5 km</option>
-              <option value="correr 10 km">Correr 10 km</option>
+              <option value="correr_5k">Correr 5 km</option>
+              <option value="correr_10k">Correr 10 km</option>
             </select>
           </label>
-          <label>Horário
+
+          <div class="two-columns">
+            <label>Peso (kg)
+              <input type="number" step="0.1" min="20" name="weight" required>
+            </label>
+            <label>Altura (m)
+              <input type="number" step="0.01" min="1" name="height" required>
+            </label>
+          </div>
+
+          <label>Faixa de idade
+            <select name="ageBand" required>
+              <option value="ate_25">Até 25 anos</option>
+              <option value="26_35">26 a 35 anos</option>
+              <option value="36_45">36 a 45 anos</option>
+              <option value="46_55">46 a 55 anos</option>
+              <option value="56_mais">56 anos ou mais</option>
+            </select>
+          </label>
+
+          <label>Nível percebido
+            <select name="level" required>
+              <option value="sedentario">Sedentário</option>
+              <option value="iniciante">Iniciante</option>
+              <option value="retorno">Retornando</option>
+              <option value="pouco_ativo">Pouco ativo</option>
+              <option value="intermediario">Intermediário</option>
+              <option value="avancado">Avançado</option>
+            </select>
+          </label>
+
+          <label>Rotina atual
+            <select name="routine" required>
+              <option value="nenhuma">Não faço atividade</option>
+              <option value="caminha_as_vezes">Caminho às vezes</option>
+              <option value="caminha_frequente">Caminho com frequência</option>
+              <option value="corre_as_vezes">Corro às vezes</option>
+              <option value="corre_frequente">Corro com frequência</option>
+            </select>
+          </label>
+
+          <label>Horário preferido
             <select name="schedule" required>
               <option value="manha">Manhã</option>
               <option value="tarde">Tarde</option>
               <option value="noite">Noite</option>
-              <option value="apos 18h">Após 18h</option>
             </select>
           </label>
+
           <label>Restrição principal
             <select name="restriction" required>
               <option value="nenhuma">Nenhuma</option>
@@ -269,10 +329,28 @@
               <option value="canela">Canela</option>
               <option value="tornozelo">Tornozelo</option>
               <option value="coluna">Coluna</option>
-              <option value="pressao alta">Pressão alta</option>
+              <option value="pressao_alta">Pressão alta</option>
               <option value="diabetes">Diabetes</option>
             </select>
           </label>
+
+          <div class="two-columns">
+            <label>Dor atual
+              <select name="painLevel" required>
+                <option value="nenhuma">Nenhuma</option>
+                <option value="leve">Leve</option>
+                <option value="moderada">Moderada</option>
+                <option value="forte">Forte</option>
+              </select>
+            </label>
+            <label>Energia hoje
+              <select name="energy" required>
+                <option value="baixa">Baixa</option>
+                <option value="normal">Normal</option>
+                <option value="boa">Boa</option>
+              </select>
+            </label>
+          </div>
 
           <fieldset class="day-pills">
             <legend>Dias disponíveis</legend>
@@ -285,25 +363,7 @@
             <label><input type="checkbox" name="days" value="DOM">DOM</label>
           </fieldset>
 
-          <div class="two-columns">
-            <label>Já caminha?
-              <select name="walksNow">
-                <option value="nao">Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </label>
-            <label>Já corre?
-              <select name="runsNow">
-                <option value="nao">Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </label>
-          </div>
-          <label>Último pace conhecido
-            <input name="lastPace" placeholder="Opcional. Ex.: 9:03">
-          </label>
-
-          <button class="primary-button" type="submit">Gerar plano</button>
+          <button class="primary-button" type="submit">Gerar treino diagnóstico</button>
         </form>
 
         <div class="backup-actions">
@@ -317,26 +377,11 @@
     </main>
 
     <nav class="bottom-nav" aria-label="Menu principal">
-      <button class="nav-item active" type="button" data-tab="home-screen">
-        <span>⌂</span>
-        Home
-      </button>
-      <button class="nav-item" type="button" data-tab="training-screen">
-        <span>▶</span>
-        Treino
-      </button>
-      <button class="nav-item" type="button" data-tab="personal-screen">
-        <span>✦</span>
-        Personal
-      </button>
-      <button class="nav-item" type="button" data-tab="health-screen">
-        <span>○</span>
-        Saúde
-      </button>
-      <button class="nav-item" type="button" data-tab="profile-screen">
-        <span>☻</span>
-        Perfil
-      </button>
+      <button class="nav-item active" type="button" data-tab="home-screen">Home</button>
+      <button class="nav-item" type="button" data-tab="training-screen">Treino</button>
+      <button class="nav-item" type="button" data-tab="personal-screen">Personal</button>
+      <button class="nav-item" type="button" data-tab="health-screen">Saúde</button>
+      <button class="nav-item" type="button" data-tab="profile-screen">Perfil</button>
     </nav>
   </div>
 

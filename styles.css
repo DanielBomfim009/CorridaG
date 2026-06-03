@@ -101,11 +101,14 @@ p {
 .icon-button {
   display: grid;
   place-items: center;
-  width: 42px;
+  width: auto;
   height: 42px;
+  padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
   color: var(--blue);
+  font-size: 0.72rem;
+  font-weight: 900;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -185,7 +188,7 @@ p {
 }
 
 .hero-card h1 {
-  max-width: 10ch;
+  max-width: 12ch;
   margin-top: 42px;
 }
 
@@ -213,6 +216,7 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
+  flex-wrap: wrap;
 }
 
 .card-heading span,
@@ -240,7 +244,7 @@ p {
 
 .health-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
   gap: 10px;
   margin-top: 14px;
 }
@@ -257,7 +261,8 @@ p {
   display: block;
   margin-top: 12px;
   font-family: "Space Grotesk", sans-serif;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 5vw, 1.2rem);
+  overflow-wrap: anywhere;
 }
 
 .primary-button,
@@ -280,6 +285,7 @@ p {
   place-items: center;
   color: var(--blue);
   background: #eef4ff;
+  text-align: center;
 }
 
 .day-selector {
@@ -378,10 +384,12 @@ p {
 .step-card span:last-child {
   display: grid;
   place-items: center;
-  width: 38px;
+  min-width: 52px;
   height: 38px;
   border-radius: 14px;
   color: var(--blue);
+  font-size: 0.72rem;
+  font-weight: 900;
   background: #eef4ff;
 }
 
@@ -474,7 +482,7 @@ textarea:focus {
 
 .inline-form {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
 }
 
@@ -583,13 +591,9 @@ textarea:focus {
   min-height: 54px;
   border-radius: 18px;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: clamp(0.62rem, 2.6vw, 0.72rem);
   font-weight: 900;
   background: transparent;
-}
-
-.nav-item span {
-  font-size: 1.12rem;
 }
 
 .nav-item.active {
@@ -621,5 +625,34 @@ textarea:focus {
     border-radius: 42px;
     background: var(--bg);
     box-shadow: 0 30px 90px rgba(15, 25, 45, 0.25);
+  }
+}
+
+@media (max-width: 390px) {
+  .phone-shell {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .two-columns,
+  .inline-form {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-card,
+  .coach-message,
+  .main-workout-card,
+  .workout-hero,
+  .coach-note,
+  .decision-card,
+  .health-card,
+  .feedback-card,
+  .profile-form {
+    border-radius: 22px;
+  }
+
+  .bottom-nav {
+    padding-right: 6px;
+    padding-left: 6px;
   }
 }

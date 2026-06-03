@@ -1,151 +1,98 @@
 # Arquitetura CorridaG
 
-## Visão
+## Objetivo
 
-O CorridaG é um Personal Trainer Cardio Digital. A aplicação deve parecer uma consultoria de cardio e emagrecimento, não um dashboard esportivo.
+O CorridaG deve parecer um personal cardio digital. O corredor não precisa saber quanto corre, quanto caminha ou qual pace deve seguir. O app estima, testa com segurança e ajusta com base no feedback.
 
-O fluxo central é:
+## Fluxo Principal
 
-Perfil → Análise → Treino → Execução → Feedback → Decisão → Nova análise
+Perfil fechado → Análise → Treino diagnóstico → Feedback → Reanálise → Decisão → Ajuste dos próximos treinos
 
-## Interface
+## Perfil
 
-A interface foi redesenhada com 5 abas fixas no menu inferior:
+As perguntas são fechadas para alimentar gatilhos do motor:
 
-- `Home`
-- `Treino`
-- `Personal`
-- `Saúde`
-- `Perfil`
-
-### Home
-
-Resumo vivo do acompanhamento:
-
-- análise curta do personal;
-- treino do dia;
-- água;
-- jejum;
-- peso.
-
-### Treino
-
-Tela focada em execução:
-
-- dia selecionado;
-- distância do treino;
-- tipo do treino;
-- progresso;
-- etapas em cards;
-- botão de finalizar treino;
-- feedback pós-treino.
-
-### Personal
-
-Tela de explicação:
-
-- análise completa;
-- justificativa da distância;
-- justificativa do pace;
-- justificativa da frequência;
-- decisão atual.
-
-### Saúde
-
-Controles simples:
-
-- água;
-- jejum;
-- peso.
-
-### Perfil
-
-Avaliação inicial:
-
-- nome;
-- idade;
+- objetivo;
 - peso;
 - altura;
-- meta de peso;
-- nível;
-- objetivo;
+- faixa de idade;
+- nível percebido;
+- rotina atual;
 - horário;
-- restrições;
-- dias disponíveis;
-- experiência atual;
-- último pace conhecido;
-- backup JSON.
+- restrição principal;
+- dor atual;
+- energia;
+- dias disponíveis.
 
-## Arquivos
+Não há pergunta aberta para último pace, último treino, km que consegue correr ou km que consegue caminhar.
 
-- `index.html`: estrutura das 5 abas.
-- `styles.css`: visual mobile premium, cards grandes e navegação simples.
-- `app.js`: estado, renderização, motor de decisão e persistência.
-- `manifest.json`: instalação PWA.
-- `service-worker.js`: cache do app shell.
+## Motor Cardio 2.0
 
-## Persistência
+Camadas do motor:
 
-Tudo é local.
+- `riskProfile`: calcula risco por IMC, idade, restrição, dor e energia.
+- `readinessScore`: estima prontidão por nível e rotina atual.
+- `chooseDiagnosticModel`: escolhe o modelo do treino diagnóstico.
+- `chooseDiagnosticDistance`: define distância inicial segura.
+- `weekStrategy`: monta a semana pela disponibilidade e distribuição de descanso.
+- `evaluateFeedback`: compara planejado versus realizado.
+- `applyDecisionToPending`: ajusta treinos pendentes.
 
-Chave principal:
-
-- `corridag-personal-v1`
-
-Dados salvos:
-
-- perfil;
-- análise;
-- plano semanal;
-- feedbacks;
-- decisão atual;
-- água;
-- jejum;
-- peso;
-- backup importado.
-
-## Motor de Decisão Cardio
-
-O motor usa regras locais e linguagem humana. Ele calcula:
-
-- risco do perfil;
-- distância inicial;
-- frequência semanal;
-- tipo de treino;
-- pace de caminhada;
-- pace de corrida leve;
-- pace de recuperação;
-- resposta pós-feedback.
-
-## Regras
-
-Segurança vem antes de evolução.
+## Decisões
 
 `REDUZIR` quando:
 
-- dor articular >= 4;
-- cansaço >= 8;
-- treino não concluído.
+- dor articular moderada ou forte;
+- treino não concluído com esforço alto;
+- distância muito abaixo com fadiga alta.
 
 `MANTER` quando:
 
 - treino concluído;
-- cansaço <= 6;
-- dor articular <= 2.
-
-`EVOLUIR` quando:
-
-- todos os treinos da semana foram concluídos;
-- cansaço médio <= 5;
+- distância dentro do esperado;
+- esforço controlado;
 - sem dor articular relevante.
+
+`AUMENTAR` quando:
+
+- treino concluído;
+- sem dor;
+- esforço leve/controlado;
+- ritmo real melhor que o previsto;
+- sensação final positiva.
+
+## Modelos de Treino
+
+- `caminhada_diagnostica`
+- `caminhada_progressiva`
+- `corrida_caminhada_curta`
+- `corrida_caminhada_base`
+- `corrida_leve_continua`
+- `progressivo_controlado`
+- `recuperacao`
+
+Cada modelo gera blocos diferentes. O sistema não usa mais um único padrão fixo para todos os perfis.
+
+## Disponibilidade
+
+A disponibilidade do corredor é regra central.
+
+- 1 dia: diagnóstico.
+- 2 dias: diagnóstico + treino controlado.
+- Dias seguidos: inclui recuperação.
+- Objetivo 5 km ou 10 km com prontidão adequada: inclui base, progressivo e longo leve.
+- Risco alto: prioriza recuperação e baixo impacto.
+
+## Persistência
+
+Tudo fica em `localStorage`, chave `corridag-motor-v2`.
 
 ## Fora do Escopo
 
 - login;
 - backend;
 - IA externa;
-- dashboard técnico;
-- excesso de gráficos;
 - musculação;
-- funcional;
-- treino de força.
+- treino funcional;
+- dashboard técnico;
+- perguntas abertas para decisão do motor.
