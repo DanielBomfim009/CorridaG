@@ -4,8 +4,8 @@
   "description": "Personal trainer de cardio digital com motor de regras local.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#07111f",
-  "theme_color": "#07111f",
+  "background_color": "#f4f7fb",
+  "theme_color": "#f4f7fb",
   "icons": [
     {
       "src": "assets/icon-192.svg",

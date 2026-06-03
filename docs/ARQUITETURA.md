@@ -1,59 +1,125 @@
-# Arquitetura CorridaG V1
+# Arquitetura CorridaG
 
-## Visão Geral
+## Visão
 
-O CorridaG V1 é um PWA mobile-first que funciona como um Personal Trainer Cardio Digital. Ele não é rastreador de corrida, dashboard fitness ou app para o usuário montar treinos.
+O CorridaG é um Personal Trainer Cardio Digital. A aplicação deve parecer uma consultoria de cardio e emagrecimento, não um dashboard esportivo.
 
-O usuário informa quem é, qual objetivo possui e quando pode treinar. O sistema calcula o restante: distância, pace, estrutura do treino, orientação de água, sugestão de jejum e decisão após feedback.
+O fluxo central é:
 
-## Telas
+Perfil → Análise → Treino → Execução → Feedback → Decisão → Nova análise
 
-- `Perfil`: coleta dados pessoais, objetivo, disponibilidade, restrições e experiência atual.
-- `Análise do Personal`: explica em linguagem humana por que o plano foi escolhido.
-- `Treino da Semana`: mostra o plano semanal por blocos, com pace guia e marcação de conclusão.
-- `Feedback`: registra conclusão, distância, tempo, pace, cansaço e dores.
-- `Água`: calcula a meta diária pelo peso e permite registro rápido.
-- `Jejum`: orienta uma janela simples de 0h, 12h, 14h ou 16h.
-- `Histórico`: mostra apenas semana, treino, resultado e decisão.
+## Interface
 
-## Arquivos
+A interface foi redesenhada com 5 abas fixas no menu inferior:
 
-- `index.html`: estrutura semântica das sete telas.
-- `styles.css`: interface escura, mobile-first, cards, abas e navegação inferior.
-- `app.js`: estado, renderização, eventos, persistência e Motor de Decisão Cardio.
-- `manifest.json`: configuração PWA.
-- `service-worker.js`: cache do shell estático.
+- `Home`
+- `Treino`
+- `Personal`
+- `Saúde`
+- `Perfil`
 
-## Motor de Decisão Cardio
+### Home
 
-O motor não usa IA externa. As decisões são baseadas em regras locais.
+Resumo vivo do acompanhamento:
 
-Entradas principais:
+- análise curta do personal;
+- treino do dia;
+- água;
+- jejum;
+- peso.
 
+### Treino
+
+Tela focada em execução:
+
+- dia selecionado;
+- distância do treino;
+- tipo do treino;
+- progresso;
+- etapas em cards;
+- botão de finalizar treino;
+- feedback pós-treino.
+
+### Personal
+
+Tela de explicação:
+
+- análise completa;
+- justificativa da distância;
+- justificativa do pace;
+- justificativa da frequência;
+- decisão atual.
+
+### Saúde
+
+Controles simples:
+
+- água;
+- jejum;
+- peso.
+
+### Perfil
+
+Avaliação inicial:
+
+- nome;
 - idade;
 - peso;
 - altura;
-- IMC;
-- nível atual;
-- objetivo principal;
+- meta de peso;
+- nível;
+- objetivo;
+- horário;
+- restrições;
 - dias disponíveis;
-- horário de treino;
-- restrição principal;
-- experiência atual de caminhada/corrida;
-- último pace conhecido, quando informado;
-- feedback do treino.
+- experiência atual;
+- último pace conhecido;
+- backup JSON.
 
-Saídas principais:
+## Arquivos
 
-- análise textual do personal;
+- `index.html`: estrutura das 5 abas.
+- `styles.css`: visual mobile premium, cards grandes e navegação simples.
+- `app.js`: estado, renderização, motor de decisão e persistência.
+- `manifest.json`: instalação PWA.
+- `service-worker.js`: cache do app shell.
+
+## Persistência
+
+Tudo é local.
+
+Chave principal:
+
+- `corridag-personal-v1`
+
+Dados salvos:
+
+- perfil;
+- análise;
+- plano semanal;
+- feedbacks;
+- decisão atual;
+- água;
+- jejum;
+- peso;
+- backup importado.
+
+## Motor de Decisão Cardio
+
+O motor usa regras locais e linguagem humana. Ele calcula:
+
+- risco do perfil;
 - distância inicial;
 - frequência semanal;
-- pace de caminhada, corrida leve e recuperação;
-- treino semanal por blocos;
-- resposta após feedback;
-- decisão `MANTER`, `REDUZIR` ou `EVOLUIR`.
+- tipo de treino;
+- pace de caminhada;
+- pace de corrida leve;
+- pace de recuperação;
+- resposta pós-feedback.
 
-## Regras de Decisão
+## Regras
+
+Segurança vem antes de evolução.
 
 `REDUZIR` quando:
 
@@ -69,41 +135,17 @@ Saídas principais:
 
 `EVOLUIR` quando:
 
-- semana concluída;
-- todos os treinos feitos;
-- sem dor articular;
-- cansaço médio <= 5.
+- todos os treinos da semana foram concluídos;
+- cansaço médio <= 5;
+- sem dor articular relevante.
 
-## Regra Principal
+## Fora do Escopo
 
-O treino permanece durante toda a semana. Ele não muda diariamente e não muda por qualquer feedback isolado.
-
-Exceções de segurança:
-
-- dor articular relevante;
-- fadiga extrema;
-- incapacidade de concluir.
-
-Fora desses casos, o sistema mantém o plano. Evolução real entra apenas na próxima semana.
-
-## Persistência
-
-Tudo é salvo em `localStorage` usando a chave `corridag-v1-state`.
-
-Dados salvos:
-
-- perfil;
-- análise atual;
-- plano semanal;
-- blocos concluídos;
-- feedbacks;
-- decisões;
-- água do dia;
-- histórico de água;
-- opção de jejum.
-
-Como não há login nem backend, o app mantém exportação e importação de JSON para backup.
-
-## PWA e GitHub Pages
-
-O projeto é estático, usa caminhos relativos e pode ser publicado diretamente no GitHub Pages sem etapa de build.
+- login;
+- backend;
+- IA externa;
+- dashboard técnico;
+- excesso de gráficos;
+- musculação;
+- funcional;
+- treino de força.

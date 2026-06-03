@@ -1,24 +1,29 @@
-# Melhorias Recomendadas Para a V1
+# Próximas Melhorias
 
-## Prioridade Alta
+## Produto
 
-- Manter todas as perguntas do perfil ligadas a uma decisão real do motor.
-- Tratar experiência atual, último treino e último pace como campos de calibração, não como escolha de treino pelo usuário.
-- Mostrar sempre o motivo da decisão antes de mostrar o treino.
-- Preservar o plano semanal, alterando apenas por dor articular, fadiga extrema ou treino não concluído.
-- Melhorar mensagens de segurança para pressão alta, diabetes e dor recorrente.
+- Transformar a resposta do personal em uma linha do tempo de acompanhamento.
+- Criar um modo de primeira semana com perguntas ainda mais curtas.
+- Adicionar mensagens específicas para dor recorrente no mesmo local.
+- Criar uma tela de revisão semanal com apenas três dados: adesão, dor e decisão.
 
-## Prioridade Média
+## Interface
 
-- Criar aviso quando dois feedbacks seguidos indicarem dor articular.
-- Separar claramente orientação do personal e dados brutos no histórico.
-- Sugerir descanso ativo nos dias sem treino, sem transformar isso em nova métrica.
-- Adicionar testes automatizados do Motor de Decisão Cardio.
+- Refinar microinterações dos cards de treino.
+- Adicionar estado visual para treino finalizado.
+- Melhorar o modo PWA instalado em celulares.
+- Criar uma tela vazia mais elegante para usuários sem perfil.
 
-## Fora do Escopo da V1
+## Motor
 
-- Gráficos avançados.
-- Recovery score.
-- Radar de performance.
-- Login, backend ou API externa.
-- Treinos de musculação, força, funcional ou abdominal.
+- Separar regras do motor em arquivo próprio.
+- Adicionar testes automatizados para `MANTER`, `REDUZIR` e `EVOLUIR`.
+- Considerar queda de desempenho por distância + tempo, sem transformar isso em dashboard.
+- Melhorar a recomendação de jejum com base no horário do treino.
+
+## Não Fazer na V1
+
+- Copiar interface ou identidade do MFIT Personal.
+- Adicionar gráficos em excesso.
+- Adicionar login ou backend.
+- Adicionar treinos fora de cardio.
