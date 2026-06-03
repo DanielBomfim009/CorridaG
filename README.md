@@ -10,7 +10,7 @@ O CorridaG foi criado para pessoas que não sabem por onde começar ou que preci
 
 Fluxo:
 
-1. Perfil com respostas fechadas.
+1. Onboarding em etapas com respostas fechadas.
 2. Treino diagnóstico baseado no perfil.
 3. Feedback estruturado após o treino.
 4. Reanálise automática.
@@ -59,6 +59,8 @@ Abas principais:
 - `Personal`
 - `Saúde`
 - `Perfil`
+
+O Perfil funciona como uma entrevista guiada: objetivo, dados físicos, condição atual, segurança e disponibilidade. A aba Treino também mostra um resumo da semana para deixar claro como os dias escolhidos viraram plano.
 
 ## Execução
 

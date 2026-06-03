@@ -2,7 +2,7 @@
 
 ## Produto
 
-- Criar tela "Plano da semana" com resumo dos tipos de treino.
+- Evoluir o resumo da semana para uma tela própria de planejamento.
 - Adicionar histórico de decisões do personal em linha do tempo.
 - Criar mensagem de alerta para dor repetida no mesmo local.
 - Criar modo "não me senti bem hoje" para reduzir o treino antes da execução.
@@ -17,7 +17,7 @@
 
 ## Interface
 
-- Criar onboarding por etapas em vez de formulário único.
+- Adicionar microcopy mais forte em cada etapa do onboarding.
 - Adicionar cartões de explicação curta antes de cada treino.
 - Melhorar visual do treino finalizado.
 - Criar resumo semanal sem excesso de gráficos.

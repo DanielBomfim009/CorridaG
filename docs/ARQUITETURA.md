@@ -6,25 +6,23 @@ O CorridaG deve parecer um personal cardio digital. O corredor não precisa sabe
 
 ## Fluxo Principal
 
-Perfil fechado → Análise → Treino diagnóstico → Feedback → Reanálise → Decisão → Ajuste dos próximos treinos
+Onboarding fechado → Análise → Treino diagnóstico → Feedback → Reanálise → Decisão → Ajuste dos próximos treinos
 
 ## Perfil
 
-As perguntas são fechadas para alimentar gatilhos do motor:
+As perguntas são fechadas e organizadas em etapas para alimentar gatilhos do motor:
 
 - objetivo;
-- peso;
-- altura;
-- faixa de idade;
-- nível percebido;
-- rotina atual;
-- horário;
-- restrição principal;
-- dor atual;
-- energia;
-- dias disponíveis.
+- perfil físico;
+- condição atual;
+- segurança;
+- disponibilidade.
 
 Não há pergunta aberta para último pace, último treino, km que consegue correr ou km que consegue caminhar.
+
+## Plano Semanal
+
+A aba Treino mostra um resumo dos dias prescritos, com modelo, distância, objetivo do treino e status. Isso ajuda o corredor a entender que a disponibilidade informada virou uma semana real, e não uma lista genérica de treinos.
 
 ## Motor Cardio 2.0
 

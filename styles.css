@@ -313,6 +313,45 @@ p {
   background: var(--blue);
 }
 
+.week-summary {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.week-card {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  color: var(--ink);
+  text-align: left;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 24px rgba(20, 36, 64, 0.06);
+}
+
+.week-card.active {
+  border-color: rgba(23, 107, 255, 0.48);
+  background: #eef4ff;
+}
+
+.week-card span {
+  color: var(--blue);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.week-card strong {
+  font-size: 0.95rem;
+}
+
+.week-card small {
+  line-height: 1.35;
+}
+
 .workout-hero {
   margin-top: 0;
   background:
@@ -516,6 +555,69 @@ textarea:focus {
   box-shadow: var(--shadow);
 }
 
+.onboarding-status {
+  display: grid;
+  gap: 9px;
+  margin-bottom: 2px;
+}
+
+.onboarding-status span {
+  color: var(--blue);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.onboarding-progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5edf7;
+}
+
+.onboarding-progress span {
+  display: block;
+  width: var(--progress, 20%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  transition: width 0.22s ease;
+}
+
+.onboarding-step {
+  display: none;
+  gap: 12px;
+}
+
+.onboarding-step.active {
+  display: grid;
+  animation: rise 0.2s ease-out;
+}
+
+.onboarding-step h2 {
+  font-size: clamp(1.45rem, 7vw, 1.9rem);
+}
+
+.onboarding-step > p {
+  margin-bottom: 4px;
+}
+
+.wizard-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.wizard-actions .primary-button {
+  width: 100%;
+}
+
+.wizard-actions .secondary-button:first-child:last-child,
+.wizard-actions .primary-button:first-child:last-child {
+  grid-column: 1 / -1;
+}
+
 .two-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -635,7 +737,8 @@ textarea:focus {
   }
 
   .two-columns,
-  .inline-form {
+  .inline-form,
+  .wizard-actions {
     grid-template-columns: 1fr;
   }
 

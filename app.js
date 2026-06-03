@@ -107,6 +107,7 @@ const initialState = () => ({
 });
 
 let state = loadState();
+let onboardingStep = 0;
 
 const $ = (selector, scope = document) => scope.querySelector(selector);
 const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -757,6 +758,7 @@ function activateScreen(screenId) {
 
 function render() {
   normalizeDailyState();
+  renderOnboarding();
   renderProfile();
   renderHome();
   renderTraining();
@@ -801,12 +803,14 @@ function renderHome() {
 
 function renderTraining() {
   const selector = $("#day-selector");
+  const summary = $("#week-summary");
   const steps = $("#training-steps");
   const finishButton = $("#finish-workout-btn");
   const feedbackForm = $("#feedback-form");
 
   if (!state.plan?.days.length) {
     selector.innerHTML = "";
+    summary.innerHTML = "";
     $("#training-day").textContent = "-";
     $("#training-distance").textContent = "Plano não gerado";
     $("#training-type").textContent = "Preencha o perfil para montar a primeira semana.";
@@ -822,6 +826,13 @@ function renderTraining() {
   const workout = currentWorkout();
   selector.innerHTML = state.plan.days.map((item) => `
     <button type="button" class="${item.day === workout.day ? "active" : ""}" data-day="${item.day}">${item.day}</button>
+  `).join("");
+  summary.innerHTML = state.plan.days.map((item) => `
+    <button type="button" class="week-card ${item.day === workout.day ? "active" : ""}" data-week-day="${item.day}">
+      <span>${item.day}</span>
+      <strong>${item.title}</strong>
+      <small>${formatKm(item.targetDistance)} · ${purposeShort(item.purpose)} · ${statusLabel(item.status)}</small>
+    </button>
   `).join("");
 
   const done = workout.blocks.filter((item) => item.done).length;
@@ -843,6 +854,60 @@ function renderTraining() {
     </button>
   `).join("");
   finishButton.classList.toggle("hidden", progress < 100);
+}
+
+function renderOnboarding() {
+  const steps = $$(".onboarding-step");
+  if (!steps.length) return;
+  const safeStep = clamp(onboardingStep, 0, steps.length - 1);
+  onboardingStep = safeStep;
+  steps.forEach((step, index) => {
+    step.classList.toggle("active", index === safeStep);
+  });
+  $("#onboarding-step-label").textContent = `Etapa ${safeStep + 1} de ${steps.length}`;
+  $("#onboarding-progress-fill").style.setProperty("--progress", `${Math.round(((safeStep + 1) / steps.length) * 100)}%`);
+}
+
+function validateOnboardingStep(stepIndex) {
+  const step = $(`.onboarding-step[data-step="${stepIndex}"]`);
+  if (!step) return true;
+  const controls = $$("input, select", step);
+  for (const control of controls) {
+    if (control.type === "checkbox") continue;
+    if (!control.checkValidity()) {
+      control.reportValidity();
+      return false;
+    }
+  }
+  if (step.querySelector('input[name="days"]')) {
+    const hasDay = $$('input[name="days"]:checked').length > 0;
+    if (!hasDay) {
+      alert("Selecione pelo menos um dia disponível.");
+      return false;
+    }
+  }
+  return true;
+}
+
+function goToOnboardingStep(nextStep) {
+  const steps = $$(".onboarding-step");
+  onboardingStep = clamp(nextStep, 0, Math.max(steps.length - 1, 0));
+  renderOnboarding();
+}
+
+function purposeShort(purpose) {
+  const labels = {
+    diagnostico: "diagnóstico",
+    recuperacao: "recuperação",
+    base: "base",
+    progressivo: "progressivo",
+    longo: "longo"
+  };
+  return labels[purpose] || "treino";
+}
+
+function statusLabel(status) {
+  return status === "feito" ? "feito" : "pendente";
 }
 
 function purposeText(purpose) {
@@ -948,6 +1013,25 @@ function bindEvents() {
     state.selectedDay = button.dataset.day;
     $("#feedback-form").classList.add("hidden");
     render();
+  });
+
+  $("#week-summary").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-week-day]");
+    if (!button) return;
+    state.selectedDay = button.dataset.weekDay;
+    $("#feedback-form").classList.add("hidden");
+    render();
+  });
+
+  $$("[data-onboarding-next]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!validateOnboardingStep(onboardingStep)) return;
+      goToOnboardingStep(onboardingStep + 1);
+    });
+  });
+
+  $$("[data-onboarding-prev]").forEach((button) => {
+    button.addEventListener("click", () => goToOnboardingStep(onboardingStep - 1));
   });
 
   $("#training-steps").addEventListener("click", (event) => {

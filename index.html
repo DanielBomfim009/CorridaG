@@ -77,6 +77,7 @@
         </div>
 
         <div id="day-selector" class="day-selector"></div>
+        <section id="week-summary" class="week-summary" aria-label="Resumo da semana"></section>
 
         <article class="workout-hero">
           <span id="training-day">-</span>
@@ -264,106 +265,149 @@
         </div>
 
         <form id="profile-form" class="profile-form">
-          <label>Objetivo principal
-            <select name="goal" required>
-              <option value="emagrecimento">Emagrecimento</option>
-              <option value="saude">Saúde</option>
-              <option value="condicionamento">Condicionamento</option>
-              <option value="correr_5k">Correr 5 km</option>
-              <option value="correr_10k">Correr 10 km</option>
-            </select>
-          </label>
-
-          <div class="two-columns">
-            <label>Peso (kg)
-              <input type="number" step="0.1" min="20" name="weight" required>
-            </label>
-            <label>Altura (m)
-              <input type="number" step="0.01" min="1" name="height" required>
-            </label>
+          <div class="onboarding-status">
+            <span id="onboarding-step-label">Etapa 1 de 5</span>
+            <div class="onboarding-progress"><span id="onboarding-progress-fill"></span></div>
           </div>
 
-          <label>Faixa de idade
-            <select name="ageBand" required>
-              <option value="ate_25">Até 25 anos</option>
-              <option value="26_35">26 a 35 anos</option>
-              <option value="36_45">36 a 45 anos</option>
-              <option value="46_55">46 a 55 anos</option>
-              <option value="56_mais">56 anos ou mais</option>
-            </select>
-          </label>
+          <section class="onboarding-step active" data-step="0">
+            <span class="eyebrow">Objetivo</span>
+            <h2>Qual resultado você quer buscar?</h2>
+            <p>Essa resposta muda o tipo de plano: emagrecimento, saúde, base cardio ou performance.</p>
+            <label>Objetivo principal
+              <select name="goal" required>
+                <option value="emagrecimento">Emagrecimento</option>
+                <option value="saude">Saúde</option>
+                <option value="condicionamento">Condicionamento</option>
+                <option value="correr_5k">Correr 5 km</option>
+                <option value="correr_10k">Correr 10 km</option>
+              </select>
+            </label>
+            <div class="wizard-actions">
+              <button class="primary-button" type="button" data-onboarding-next>Continuar</button>
+            </div>
+          </section>
 
-          <label>Nível percebido
-            <select name="level" required>
-              <option value="sedentario">Sedentário</option>
-              <option value="iniciante">Iniciante</option>
-              <option value="retorno">Retornando</option>
-              <option value="pouco_ativo">Pouco ativo</option>
-              <option value="intermediario">Intermediário</option>
-              <option value="avancado">Avançado</option>
-            </select>
-          </label>
+          <section class="onboarding-step" data-step="1">
+            <span class="eyebrow">Perfil físico</span>
+            <h2>Dados para estimar impacto e segurança.</h2>
+            <p>O app usa peso, altura e idade para calcular risco inicial. Não é julgamento, é proteção.</p>
+            <div class="two-columns">
+              <label>Peso (kg)
+                <input type="number" step="0.1" min="20" name="weight" required>
+              </label>
+              <label>Altura (m)
+                <input type="number" step="0.01" min="1" name="height" required>
+              </label>
+            </div>
+            <label>Faixa de idade
+              <select name="ageBand" required>
+                <option value="ate_25">Até 25 anos</option>
+                <option value="26_35">26 a 35 anos</option>
+                <option value="36_45">36 a 45 anos</option>
+                <option value="46_55">46 a 55 anos</option>
+                <option value="56_mais">56 anos ou mais</option>
+              </select>
+            </label>
+            <div class="wizard-actions">
+              <button class="secondary-button" type="button" data-onboarding-prev>Voltar</button>
+              <button class="primary-button" type="button" data-onboarding-next>Continuar</button>
+            </div>
+          </section>
 
-          <label>Rotina atual
-            <select name="routine" required>
-              <option value="nenhuma">Não faço atividade</option>
-              <option value="caminha_as_vezes">Caminho às vezes</option>
-              <option value="caminha_frequente">Caminho com frequência</option>
-              <option value="corre_as_vezes">Corro às vezes</option>
-              <option value="corre_frequente">Corro com frequência</option>
-            </select>
-          </label>
+          <section class="onboarding-step" data-step="2">
+            <span class="eyebrow">Condição atual</span>
+            <h2>Como está sua rotina hoje?</h2>
+            <p>Você não precisa saber km ou pace. O motor só precisa de sinais objetivos.</p>
+            <label>Nível percebido
+              <select name="level" required>
+                <option value="sedentario">Sedentário</option>
+                <option value="iniciante">Iniciante</option>
+                <option value="retorno">Retornando</option>
+                <option value="pouco_ativo">Pouco ativo</option>
+                <option value="intermediario">Intermediário</option>
+                <option value="avancado">Avançado</option>
+              </select>
+            </label>
+            <label>Rotina atual
+              <select name="routine" required>
+                <option value="nenhuma">Não faço atividade</option>
+                <option value="caminha_as_vezes">Caminho às vezes</option>
+                <option value="caminha_frequente">Caminho com frequência</option>
+                <option value="corre_as_vezes">Corro às vezes</option>
+                <option value="corre_frequente">Corro com frequência</option>
+              </select>
+            </label>
+            <label>Horário preferido
+              <select name="schedule" required>
+                <option value="manha">Manhã</option>
+                <option value="tarde">Tarde</option>
+                <option value="noite">Noite</option>
+              </select>
+            </label>
+            <div class="wizard-actions">
+              <button class="secondary-button" type="button" data-onboarding-prev>Voltar</button>
+              <button class="primary-button" type="button" data-onboarding-next>Continuar</button>
+            </div>
+          </section>
 
-          <label>Horário preferido
-            <select name="schedule" required>
-              <option value="manha">Manhã</option>
-              <option value="tarde">Tarde</option>
-              <option value="noite">Noite</option>
-            </select>
-          </label>
-
-          <label>Restrição principal
-            <select name="restriction" required>
-              <option value="nenhuma">Nenhuma</option>
-              <option value="joelho">Joelho</option>
-              <option value="canela">Canela</option>
-              <option value="tornozelo">Tornozelo</option>
-              <option value="coluna">Coluna</option>
-              <option value="pressao_alta">Pressão alta</option>
-              <option value="diabetes">Diabetes</option>
-            </select>
-          </label>
-
-          <div class="two-columns">
-            <label>Dor atual
-              <select name="painLevel" required>
+          <section class="onboarding-step" data-step="3">
+            <span class="eyebrow">Segurança</span>
+            <h2>Existe algum sinal de atenção?</h2>
+            <p>Dor e restrição alteram o treino antes mesmo do primeiro feedback.</p>
+            <label>Restrição principal
+              <select name="restriction" required>
                 <option value="nenhuma">Nenhuma</option>
-                <option value="leve">Leve</option>
-                <option value="moderada">Moderada</option>
-                <option value="forte">Forte</option>
+                <option value="joelho">Joelho</option>
+                <option value="canela">Canela</option>
+                <option value="tornozelo">Tornozelo</option>
+                <option value="coluna">Coluna</option>
+                <option value="pressao_alta">Pressão alta</option>
+                <option value="diabetes">Diabetes</option>
               </select>
             </label>
-            <label>Energia hoje
-              <select name="energy" required>
-                <option value="baixa">Baixa</option>
-                <option value="normal">Normal</option>
-                <option value="boa">Boa</option>
-              </select>
-            </label>
-          </div>
+            <div class="two-columns">
+              <label>Dor atual
+                <select name="painLevel" required>
+                  <option value="nenhuma">Nenhuma</option>
+                  <option value="leve">Leve</option>
+                  <option value="moderada">Moderada</option>
+                  <option value="forte">Forte</option>
+                </select>
+              </label>
+              <label>Energia hoje
+                <select name="energy" required>
+                  <option value="baixa">Baixa</option>
+                  <option value="normal">Normal</option>
+                  <option value="boa">Boa</option>
+                </select>
+              </label>
+            </div>
+            <div class="wizard-actions">
+              <button class="secondary-button" type="button" data-onboarding-prev>Voltar</button>
+              <button class="primary-button" type="button" data-onboarding-next>Continuar</button>
+            </div>
+          </section>
 
-          <fieldset class="day-pills">
-            <legend>Dias disponíveis</legend>
-            <label><input type="checkbox" name="days" value="SEG">SEG</label>
-            <label><input type="checkbox" name="days" value="TER">TER</label>
-            <label><input type="checkbox" name="days" value="QUA">QUA</label>
-            <label><input type="checkbox" name="days" value="QUI">QUI</label>
-            <label><input type="checkbox" name="days" value="SEX">SEX</label>
-            <label><input type="checkbox" name="days" value="SAB">SAB</label>
-            <label><input type="checkbox" name="days" value="DOM">DOM</label>
-          </fieldset>
-
-          <button class="primary-button" type="submit">Gerar treino diagnóstico</button>
+          <section class="onboarding-step" data-step="4">
+            <span class="eyebrow">Disponibilidade</span>
+            <h2>Quais dias você consegue treinar?</h2>
+            <p>A semana é montada em cima desses dias. Dias seguidos recebem recuperação automática.</p>
+            <fieldset class="day-pills">
+              <legend>Dias disponíveis</legend>
+              <label><input type="checkbox" name="days" value="SEG">SEG</label>
+              <label><input type="checkbox" name="days" value="TER">TER</label>
+              <label><input type="checkbox" name="days" value="QUA">QUA</label>
+              <label><input type="checkbox" name="days" value="QUI">QUI</label>
+              <label><input type="checkbox" name="days" value="SEX">SEX</label>
+              <label><input type="checkbox" name="days" value="SAB">SAB</label>
+              <label><input type="checkbox" name="days" value="DOM">DOM</label>
+            </fieldset>
+            <div class="wizard-actions">
+              <button class="secondary-button" type="button" data-onboarding-prev>Voltar</button>
+              <button class="primary-button" type="submit">Gerar treino diagnóstico</button>
+            </div>
+          </section>
         </form>
 
         <div class="backup-actions">
