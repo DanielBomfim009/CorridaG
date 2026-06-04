@@ -7,35 +7,27 @@
     <meta name="description" content="CorridaG: acompanhe treinos cardio importados, registre feedbacks e visualize sua evolução." />
     <title>CorridaG</title>
     <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="assets/icon-192.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="assets/icon-192.svg" />
+    <link rel="icon" href="assets/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <button class="brand-button" data-goto="home" aria-label="CorridaG - ir para o início">
-          <img src="assets/logo.svg" alt="" />
+          <img src="assets/logo-symbol.png" alt="" />
+          <span>CorridaG</span>
         </button>
-        <button class="ghost-button compact" data-goto="import">Importar treino</button>
+        <button class="ghost-button compact" data-goto="import">Importar</button>
       </header>
 
       <main class="screen-stack">
         <section id="onboarding" class="screen active" aria-labelledby="onboarding-title">
           <article class="welcome-card">
-            <img src="assets/logo.svg" alt="CorridaG" class="welcome-logo" />
+            <img src="assets/logo-app.png" alt="CorridaG" class="welcome-logo" />
             <p class="eyebrow">Seu treino. Seu ritmo. Seu resultado.</p>
-            <h1 id="onboarding-title">Acompanhe seu cardio com clareza.</h1>
-            <p>
-              Importe o treino da semana, marque os blocos concluídos, registre o feedback real
-              e acompanhe sua evolução sem telas confusas.
-            </p>
-            <div class="feature-list">
-              <span>Treino semanal importado por JSON</span>
-              <span>Blocos grandes e fáceis de marcar</span>
-              <span>Feedback pós-treino padronizado</span>
-              <span>Histórico simples de evolução</span>
-            </div>
+            <h1 id="onboarding-title">Cardio sob controle.</h1>
+            <p class="short-copy">Importe, execute, registre e evolua.</p>
             <div class="action-row">
               <button class="primary-action" data-goto="import">Importar treino</button>
               <button class="secondary-action" id="load-sample-btn">Carregar exemplo</button>
@@ -46,7 +38,7 @@
         <section id="home" class="screen" aria-labelledby="home-title">
           <article class="hero-card">
             <p class="eyebrow" id="home-greeting">Olá, atleta</p>
-            <h1 id="home-title">Dashboard</h1>
+            <h1 id="home-title">Resumo</h1>
             <p id="coach-note">Importe o treino da semana para começar o acompanhamento.</p>
           </article>
 
@@ -70,17 +62,14 @@
             <article class="metric-card">
               <span>Distância registrada</span>
               <strong id="total-distance">0 km</strong>
-              <small>Somatório dos feedbacks</small>
             </article>
             <article class="metric-card">
               <span>Pace médio</span>
               <strong id="avg-pace">--</strong>
-              <small>Baseado nos treinos salvos</small>
             </article>
             <article class="metric-card">
               <span>Próximo treino</span>
               <strong id="next-workout">--</strong>
-              <small id="next-workout-detail">Aguardando importação</small>
             </article>
           </div>
 
@@ -92,7 +81,7 @@
 
           <div class="action-row">
             <button class="primary-action" data-goto="trainings">Ver treino</button>
-            <button class="secondary-action" data-goto="import">Importar novo</button>
+            <button class="secondary-action" data-goto="evolution">Evolução</button>
           </div>
         </section>
 
@@ -261,8 +250,8 @@
           <article class="drop-zone" id="drop-zone">
             <input type="file" id="import-file" accept="application/json,.json" hidden />
             <div class="upload-mark">JSON</div>
-            <h3>Arraste o arquivo aqui ou toque para selecionar.</h3>
-            <p>O arquivo deve conter semana, atleta, treinos e blocos.</p>
+            <h3>Importar treino</h3>
+            <p>Selecione o arquivo JSON da semana.</p>
             <button class="primary-action" id="import-file-btn">Selecionar arquivo</button>
           </article>
 
@@ -313,19 +302,27 @@
 
       <nav class="bottom-nav" aria-label="Navegação principal">
         <button class="nav-btn active" data-goto="home">
-          <span class="nav-icon">IN</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5v7a1.5 1.5 0 0 1-1.5 1.5H15v-5.5H9V20H4.5A1.5 1.5 0 0 1 3 18.5v-7Z"/></svg>
+          </span>
           <small>Início</small>
         </button>
         <button class="nav-btn" data-goto="trainings">
-          <span class="nav-icon">TR</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M7 3h2v3h6V3h2v3h2.5A1.5 1.5 0 0 1 21 7.5v12a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19.5v-12A1.5 1.5 0 0 1 4.5 6H7V3Zm12 8H5v8h14v-8Z"/></svg>
+          </span>
           <small>Treinos</small>
         </button>
         <button class="nav-btn" data-goto="evolution">
-          <span class="nav-icon">EV</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 19h16v2H3a1 1 0 0 1-1-1V4h2v15Zm3.2-2.8-1.4-1.4 4.5-4.5 3 3L18.6 8H16V6h6v6h-2V9.4l-6.7 6.7-3-3-3.1 3.1Z"/></svg>
+          </span>
           <small>Evolução</small>
         </button>
         <button class="nav-btn" data-goto="profile">
-          <span class="nav-icon">PF</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.4 0-8 2.4-8 5.3V21h16v-1.7C20 16.4 16.4 14 12 14Z"/></svg>
+          </span>
           <small>Perfil</small>
         </button>
       </nav>

@@ -432,7 +432,6 @@ function renderHome() {
   setText("total-distance", formatKm(totalDistance, 2));
   setText("avg-pace", averagePace ? `${formatPace(averagePace)}/km` : "--");
   setText("next-workout", next?.day || "--");
-  setText("next-workout-detail", next ? next.title : "Aguardando importação");
 
   const ring = $("week-ring");
   if (ring) ring.style.setProperty("--p", `${percent * 3.6}deg`);

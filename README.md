@@ -1,6 +1,6 @@
 # CorridaG
 
-PWA mobile-first para acompanhamento de treinos cardio importados. Esta versão não gera treinos automaticamente: o app importa um treino semanal em JSON, organiza os blocos, registra feedback pós-treino e mostra a evolução do corredor.
+PWA mobile-first para acompanhamento de treinos cardio importados. O app importa uma semana em JSON, organiza os blocos, registra feedback pós-treino e mostra evolução.
 
 ## Fluxo principal
 
@@ -18,7 +18,7 @@ PWA mobile-first para acompanhamento de treinos cardio importados. Esta versão 
 - `Evolução`
 - `Perfil`
 
-Feedback e importação são telas auxiliares, abertas a partir do treino, do perfil ou do botão rápido.
+Feedback e importação são telas auxiliares.
 
 ## JSON oficial
 
@@ -35,4 +35,4 @@ Veja `sample-workout.json` e `corridag-semana-01.json`.
 
 ## PWA
 
-O projeto inclui `manifest.json`, `service-worker.js`, `.nojekyll` e ícones em SVG para publicação no GitHub Pages.
+O projeto inclui `manifest.json`, `service-worker.js`, `.nojekyll` e ícones PNG para publicação no GitHub Pages.

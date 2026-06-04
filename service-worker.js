@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-quality-v1";
+const CACHE_NAME = "corridag-premium-v1";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,9 +7,11 @@ const ASSETS = [
   "./manifest.json",
   "./sample-workout.json",
   "./corridag-semana-01.json",
-  "./assets/logo.svg",
-  "./assets/icon-192.svg",
-  "./assets/icon-512.svg"
+  "./assets/logo-app.png",
+  "./assets/logo-header.png",
+  "./assets/logo-symbol.png",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
