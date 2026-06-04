@@ -1,0 +1,103 @@
+{
+  "app": "CorridaG",
+  "version": 2,
+  "mode": "tracking",
+  "week": "Semana 1",
+  "period": "20 a 26 de maio",
+  "createdAt": "2026-06-04",
+  "coachNote": "Semana de acompanhamento cardio. Execute os blocos na ordem, registre o feedback real e acompanhe sua evolução com segurança.",
+  "athlete": {
+    "name": "Atleta CorridaG",
+    "goal": "Emagrecimento",
+    "weight": 120.5,
+    "height": 1.8,
+    "level": "Retorno",
+    "preferredTime": "Noite",
+    "restrictions": "Nenhuma"
+  },
+  "workouts": [
+    {
+      "day": "SEG",
+      "title": "Corrida + caminhada",
+      "distance": 4,
+      "status": "pending",
+      "blocks": [
+        { "from": 0, "to": 0.5, "type": "Caminhada de aquecimento", "pace": "11:00-12:00" },
+        { "from": 0.5, "to": 0.8, "type": "Corrida leve", "pace": "8:30-9:30" },
+        { "from": 0.8, "to": 1.5, "type": "Caminhada de recuperação", "pace": "9:30-10:30" },
+        { "from": 1.5, "to": 1.8, "type": "Corrida leve", "pace": "8:30-9:30" },
+        { "from": 1.8, "to": 2.5, "type": "Caminhada de recuperação", "pace": "9:30-10:30" },
+        { "from": 2.5, "to": 2.8, "type": "Corrida leve", "pace": "8:30-9:30" },
+        { "from": 2.8, "to": 4, "type": "Caminhada final", "pace": "9:30-10:30" }
+      ]
+    },
+    {
+      "day": "TER",
+      "title": "Caminhada ativa",
+      "distance": 4,
+      "status": "pending",
+      "blocks": [
+        { "from": 0, "to": 0.5, "type": "Caminhada leve", "pace": "11:00-12:00" },
+        { "from": 0.5, "to": 3.5, "type": "Caminhada ativa", "pace": "9:30-10:30" },
+        { "from": 3.5, "to": 4, "type": "Caminhada final", "pace": "10:00-11:00" }
+      ]
+    },
+    {
+      "day": "QUA",
+      "title": "Corrida + caminhada",
+      "distance": 4,
+      "status": "pending",
+      "blocks": [
+        { "from": 0, "to": 0.5, "type": "Caminhada de aquecimento", "pace": "11:00-12:00" },
+        { "from": 0.5, "to": 1, "type": "Corrida leve", "pace": "8:45-9:30" },
+        { "from": 1, "to": 1.5, "type": "Caminhada de recuperação", "pace": "9:30-10:30" },
+        { "from": 1.5, "to": 2, "type": "Corrida leve", "pace": "8:45-9:30" },
+        { "from": 2, "to": 2.5, "type": "Caminhada de recuperação", "pace": "9:30-10:30" },
+        { "from": 2.5, "to": 3, "type": "Corrida leve", "pace": "8:45-9:30" },
+        { "from": 3, "to": 4, "type": "Caminhada final", "pace": "9:30-10:30" }
+      ]
+    },
+    {
+      "day": "QUI",
+      "title": "Caminhada de recuperação",
+      "distance": 4,
+      "status": "pending",
+      "blocks": [
+        { "from": 0, "to": 4, "type": "Caminhada contínua leve", "pace": "9:30-10:45" }
+      ]
+    },
+    {
+      "day": "SEX",
+      "title": "Corrida + caminhada",
+      "distance": 4,
+      "status": "pending",
+      "blocks": [
+        { "from": 0, "to": 0.5, "type": "Caminhada de aquecimento", "pace": "11:00-12:00" },
+        { "from": 0.5, "to": 1, "type": "Corrida leve", "pace": "8:45-9:30" },
+        { "from": 1, "to": 1.5, "type": "Caminhada de recuperação", "pace": "9:30-10:30" },
+        { "from": 1.5, "to": 2, "type": "Corrida leve", "pace": "8:45-9:30" },
+        { "from": 2, "to": 2.5, "type": "Caminhada de recuperação", "pace": "9:30-10:30" },
+        { "from": 2.5, "to": 3, "type": "Corrida leve", "pace": "8:45-9:30" },
+        { "from": 3, "to": 4, "type": "Caminhada final", "pace": "9:30-10:30" }
+      ]
+    },
+    {
+      "day": "SAB",
+      "title": "Caminhada longa",
+      "distance": 5,
+      "status": "pending",
+      "blocks": [
+        { "from": 0, "to": 0.5, "type": "Caminhada leve", "pace": "11:00-12:00" },
+        { "from": 0.5, "to": 4.5, "type": "Caminhada longa", "pace": "9:30-10:45" },
+        { "from": 4.5, "to": 5, "type": "Caminhada final", "pace": "10:00-11:00" }
+      ]
+    },
+    {
+      "day": "DOM",
+      "title": "Descanso",
+      "distance": 0,
+      "status": "rest",
+      "blocks": []
+    }
+  ]
+}

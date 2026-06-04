@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B1424" />
+    <meta name="description" content="CorridaG: acompanhamento cardio para treinos importados, feedbacks, evolução, água, jejum e peso." />
+    <title>CorridaG</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="assets/icon-192.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/icon-192.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="brand-button" data-goto="home" aria-label="Ir para o início">
+          <img src="assets/logo.svg" alt="" />
+          <span>
+            <strong>CorridaG</strong>
+            <small>Personal cardio inteligente</small>
+          </span>
+        </button>
+        <button class="ghost-button compact" data-goto="import">Importar</button>
+      </header>
+
+      <main class="screen-stack">
+        <section id="onboarding" class="screen active" aria-labelledby="onboarding-title">
+          <article class="welcome-card">
+            <img src="assets/logo.svg" alt="CorridaG" class="welcome-logo" />
+            <p class="eyebrow">Seu treino. Seu ritmo. Seu resultado.</p>
+            <h1 id="onboarding-title">Acompanhe sua rotina cardio com clareza.</h1>
+            <p>
+              O CorridaG organiza o treino recebido, registra sua execução e mostra sua evolução
+              sem excesso de métricas ou telas confusas.
+            </p>
+            <div class="feature-list">
+              <span>Treinos importados em JSON</span>
+              <span>Feedback pós-treino</span>
+              <span>Água, jejum e peso</span>
+              <span>Histórico e evolução</span>
+            </div>
+            <div class="action-row">
+              <button class="primary-action" data-goto="import">Importar treino</button>
+              <button class="secondary-action" id="load-sample-btn">Carregar exemplo</button>
+            </div>
+          </article>
+        </section>
+
+        <section id="home" class="screen" aria-labelledby="home-title">
+          <article class="hero-card">
+            <p class="eyebrow" id="home-greeting">Olá, atleta</p>
+            <h1 id="home-title">Painel de acompanhamento</h1>
+            <p id="coach-note">Importe o treino da semana para começar o acompanhamento.</p>
+            <button class="link-action" data-goto="import">Importar treino da semana</button>
+          </article>
+
+          <article class="today-card">
+            <div>
+              <span class="label">Treino em destaque</span>
+              <strong id="today-title">Nenhum treino importado</strong>
+              <small id="today-detail">Importe um arquivo .json para visualizar os blocos.</small>
+            </div>
+            <div class="progress-ring" id="week-ring">
+              <b id="week-percent">0%</b>
+            </div>
+          </article>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Semana</span>
+              <strong id="week-progress">0 de 0</strong>
+              <small id="week-label">Sem treino importado</small>
+            </article>
+            <article class="metric-card">
+              <span>Distância registrada</span>
+              <strong id="total-distance">0 km</strong>
+              <small>Somatório dos feedbacks</small>
+            </article>
+            <article class="metric-card">
+              <span>Água hoje</span>
+              <strong id="water-summary">0 ml</strong>
+              <small id="water-goal-summary">Meta diária</small>
+            </article>
+            <article class="metric-card">
+              <span>Jejum</span>
+              <strong id="fasting-summary">Não ativo</strong>
+              <small id="fasting-detail">Configure em Saúde</small>
+            </article>
+          </div>
+
+          <article class="insight-card">
+            <span class="label">Último registro</span>
+            <strong id="last-feedback-title">Nenhum feedback salvo</strong>
+            <p id="last-feedback-detail">Finalize um treino para acompanhar sua evolução.</p>
+          </article>
+
+          <div class="action-row">
+            <button class="primary-action" data-goto="trainings">Abrir treinos</button>
+            <button class="secondary-action" data-goto="health">Registrar saúde</button>
+          </div>
+        </section>
+
+        <section id="trainings" class="screen" aria-labelledby="training-title">
+          <div class="screen-title">
+            <div>
+              <p class="eyebrow">Semana importada</p>
+              <h2 id="training-title">Treino da semana</h2>
+            </div>
+            <span id="training-week" class="pill">Sem plano</span>
+          </div>
+
+          <div id="day-tabs" class="day-tabs" aria-label="Dias da semana"></div>
+
+          <article class="workout-panel">
+            <div class="workout-heading">
+              <div>
+                <span id="selected-day" class="label">--</span>
+                <h3 id="selected-title">Importe um treino</h3>
+                <p id="selected-distance">0 km</p>
+              </div>
+              <span id="selected-status" class="status-pill">Pendente</span>
+            </div>
+            <div class="progress-track" aria-label="Progresso do treino">
+              <span id="workout-progress-bar"></span>
+            </div>
+            <small id="workout-progress-label">0% concluído</small>
+          </article>
+
+          <div id="blocks-list" class="blocks-list"></div>
+
+          <div class="action-row sticky-actions">
+            <button id="feedback-workout-btn" class="primary-action hidden">Registrar feedback</button>
+            <button class="secondary-action" data-goto="import">Importar novo treino</button>
+          </div>
+        </section>
+
+        <section id="feedback" class="screen" aria-labelledby="feedback-title">
+          <div class="screen-title">
+            <button class="round-button" data-goto="trainings" aria-label="Voltar para treinos">Voltar</button>
+            <div>
+              <p class="eyebrow">Pós-treino</p>
+              <h2 id="feedback-title">Feedback do treino</h2>
+            </div>
+          </div>
+
+          <article class="feedback-summary">
+            <strong id="feedback-workout-title">Treino</strong>
+            <span id="feedback-workout-meta">Preencha os resultados reais do treino.</span>
+          </article>
+
+          <form id="feedback-form" class="feedback-form">
+            <fieldset class="segmented-field">
+              <legend>Conseguiu concluir?</legend>
+              <div class="segmented-control" data-choice-group="completed">
+                <button type="button" class="selected" data-value="sim">Sim</button>
+                <button type="button" data-value="nao">Não</button>
+              </div>
+            </fieldset>
+
+            <div class="field-row">
+              <label>
+                Distância total
+                <input name="distance" type="text" inputmode="decimal" placeholder="4,40" required />
+              </label>
+              <label>
+                Tempo total
+                <input name="time" type="text" inputmode="numeric" placeholder="39:54" required />
+              </label>
+            </div>
+
+            <label>
+              Pace médio
+              <input name="pace" type="text" inputmode="numeric" placeholder="9:03" required />
+            </label>
+
+            <fieldset class="segmented-field">
+              <legend>Como foi a sensação geral?</legend>
+              <div class="segmented-control wrap" data-choice-group="feeling">
+                <button type="button" data-value="muito_dificil">Muito difícil</button>
+                <button type="button" data-value="dificil">Difícil</button>
+                <button type="button" class="selected" data-value="controlado">Controlado</button>
+                <button type="button" data-value="facil">Fácil</button>
+              </div>
+            </fieldset>
+
+            <label class="range-field">
+              <span>Cansaço <b id="fatigue-value">4</b>/10</span>
+              <input name="fatigue" id="fatigue" type="range" min="0" max="10" value="4" />
+            </label>
+
+            <div class="pain-grid">
+              <label>
+                Dor muscular
+                <input name="musclePain" type="number" min="0" max="10" value="0" />
+              </label>
+              <label>
+                Dor no joelho
+                <input name="kneePain" type="number" min="0" max="10" value="0" />
+              </label>
+              <label>
+                Dor na canela
+                <input name="shinPain" type="number" min="0" max="10" value="0" />
+              </label>
+              <label>
+                Dor no tornozelo
+                <input name="anklePain" type="number" min="0" max="10" value="0" />
+              </label>
+            </div>
+
+            <label>
+              Algo influenciou o treino?
+              <select name="influence">
+                <option value="nada">Nada relevante</option>
+                <option value="sono">Sono ruim</option>
+                <option value="calor">Calor ou clima pesado</option>
+                <option value="alimentacao">Alimentação inadequada</option>
+                <option value="estresse">Estresse ou rotina puxada</option>
+                <option value="dor">Dor ou desconforto</option>
+              </select>
+            </label>
+
+            <label>
+              Observação opcional
+              <textarea name="notes" placeholder="Exemplo: senti falta de ar no final, mas recuperei bem."></textarea>
+            </label>
+
+            <button class="primary-action" type="submit">Salvar feedback</button>
+          </form>
+        </section>
+
+        <section id="evolution" class="screen" aria-labelledby="evolution-title">
+          <div class="screen-title">
+            <div>
+              <p class="eyebrow">Histórico</p>
+              <h2 id="evolution-title">Evolução</h2>
+            </div>
+            <span id="evolution-count" class="pill">0 registros</span>
+          </div>
+
+          <div class="metric-grid compact-grid">
+            <article class="metric-card">
+              <span>Distância total</span>
+              <strong id="month-distance">0 km</strong>
+            </article>
+            <article class="metric-card">
+              <span>Treinos</span>
+              <strong id="done-workouts">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Pace médio</span>
+              <strong id="pace-average">--</strong>
+            </article>
+            <article class="metric-card">
+              <span>Peso atual</span>
+              <strong id="current-weight-label">--</strong>
+            </article>
+          </div>
+
+          <article class="chart-card">
+            <div class="chart-head">
+              <strong>Distância por treino</strong>
+              <span>km</span>
+            </div>
+            <canvas id="distance-chart" height="220"></canvas>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-head">
+              <strong>Pace médio</strong>
+              <span>min/km</span>
+            </div>
+            <canvas id="pace-chart" height="220"></canvas>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-head">
+              <strong>Peso</strong>
+              <span>kg</span>
+            </div>
+            <canvas id="weight-chart" height="220"></canvas>
+          </article>
+
+          <div id="history-list" class="history-list"></div>
+        </section>
+
+        <section id="health" class="screen" aria-labelledby="health-title">
+          <div class="screen-title">
+            <div>
+              <p class="eyebrow">Rotina</p>
+              <h2 id="health-title">Saúde</h2>
+            </div>
+            <span class="pill">Água, jejum e peso</span>
+          </div>
+
+          <div class="tab-strip" aria-label="Abas de saúde">
+            <button class="active" data-health-tab="water">Água</button>
+            <button data-health-tab="fasting">Jejum</button>
+            <button data-health-tab="weight">Peso</button>
+          </div>
+
+          <article id="health-water" class="health-panel active">
+            <div class="big-ring" id="water-ring">
+              <strong id="water-amount">0 ml</strong>
+              <span id="water-percent">0%</span>
+            </div>
+            <p id="water-guidance">Registre sua água ao longo do dia para acompanhar a meta.</p>
+            <div class="quick-grid">
+              <button class="secondary-action water-add" data-amount="250">+250 ml</button>
+              <button class="secondary-action water-add" data-amount="500">+500 ml</button>
+              <button class="secondary-action water-add" data-amount="1000">+1000 ml</button>
+            </div>
+            <article class="chart-card">
+              <div class="chart-head">
+                <strong>Histórico de água</strong>
+                <span>últimos dias</span>
+              </div>
+              <canvas id="water-chart" height="190"></canvas>
+            </article>
+          </article>
+
+          <article id="health-fasting" class="health-panel">
+            <fieldset class="segmented-field">
+              <legend>Janela de jejum</legend>
+              <div class="segmented-control wrap" data-choice-group="fastingMode">
+                <button type="button" class="selected" data-value="none">Não faço jejum</button>
+                <button type="button" data-value="12">12h</button>
+                <button type="button" data-value="14">14h</button>
+                <button type="button" data-value="16">16h</button>
+              </div>
+            </fieldset>
+            <article class="status-card">
+              <span>Status</span>
+              <strong id="fasting-status">Não ativo</strong>
+              <p id="fasting-advice">Se treinar à noite, comece com uma janela simples e observe sua energia.</p>
+            </article>
+            <div class="action-row">
+              <button id="start-fasting-btn" class="primary-action">Iniciar jejum</button>
+              <button id="end-fasting-btn" class="secondary-action">Finalizar</button>
+            </div>
+            <div id="fasting-history" class="history-list"></div>
+          </article>
+
+          <article id="health-weight" class="health-panel">
+            <article class="status-card">
+              <span>Peso atual</span>
+              <strong id="health-weight-current">--</strong>
+              <p>Registre o peso com consistência, de preferência no mesmo período do dia.</p>
+            </article>
+            <form id="weight-form" class="inline-form">
+              <label>
+                Novo peso
+                <input name="weight" type="text" inputmode="decimal" placeholder="82,5" required />
+              </label>
+              <button class="primary-action" type="submit">Registrar peso</button>
+            </form>
+            <div id="weight-history" class="history-list"></div>
+          </article>
+        </section>
+
+        <section id="import" class="screen" aria-labelledby="import-title">
+          <div class="screen-title">
+            <div>
+              <p class="eyebrow">Arquivo JSON</p>
+              <h2 id="import-title">Importar treino</h2>
+            </div>
+            <button class="round-button" data-goto="home">Fechar</button>
+          </div>
+
+          <article class="drop-zone" id="drop-zone">
+            <input type="file" id="import-file" accept="application/json,.json" hidden />
+            <div class="upload-mark">JSON</div>
+            <h3>Arraste o arquivo aqui ou toque para selecionar.</h3>
+            <p>O treino precisa conter semana, atleta e blocos de treino.</p>
+            <button class="primary-action" id="import-file-btn">Selecionar arquivo</button>
+          </article>
+
+          <article class="status-card">
+            <span>Último treino importado</span>
+            <strong id="last-import-title">Nenhum treino importado</strong>
+            <p id="last-import-detail">Você também pode restaurar um backup exportado pelo próprio app.</p>
+          </article>
+
+          <div class="action-row">
+            <button class="secondary-action" id="load-sample-btn-import">Carregar exemplo</button>
+            <button class="secondary-action" id="export-data-btn">Exportar dados</button>
+          </div>
+        </section>
+
+        <section id="profile" class="screen" aria-labelledby="profile-title">
+          <div class="screen-title">
+            <div>
+              <p class="eyebrow">Dados importados</p>
+              <h2 id="profile-title">Perfil</h2>
+            </div>
+            <button class="ghost-button compact" data-goto="import">Novo treino</button>
+          </div>
+
+          <article class="profile-card">
+            <div class="avatar">CG</div>
+            <div>
+              <strong id="profile-name">Atleta</strong>
+              <span id="profile-goal">Importe um treino</span>
+            </div>
+          </article>
+
+          <div class="profile-list">
+            <div><span>Objetivo</span><b id="profile-objective">--</b></div>
+            <div><span>Peso atual</span><b id="profile-weight">--</b></div>
+            <div><span>Altura</span><b id="profile-height">--</b></div>
+            <div><span>Nível</span><b id="profile-level">--</b></div>
+            <div><span>Horário preferido</span><b id="profile-time">--</b></div>
+            <div><span>Restrições</span><b id="profile-restrictions">--</b></div>
+          </div>
+
+          <article class="status-card">
+            <span>Observação</span>
+            <p>
+              O CorridaG acompanha dados locais deste aparelho. Não há login, servidor ou envio automático
+              de informações.
+            </p>
+          </article>
+
+          <button id="clear-data-btn" class="danger-action">Limpar dados deste aparelho</button>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Navegação principal">
+        <button class="nav-btn active" data-goto="home">
+          <span class="nav-icon">IN</span>
+          <small>Início</small>
+        </button>
+        <button class="nav-btn" data-goto="trainings">
+          <span class="nav-icon">TR</span>
+          <small>Treinos</small>
+        </button>
+        <button class="nav-btn" data-goto="evolution">
+          <span class="nav-icon">EV</span>
+          <small>Evolução</small>
+        </button>
+        <button class="nav-btn" data-goto="health">
+          <span class="nav-icon">SA</span>
+          <small>Saúde</small>
+        </button>
+        <button class="nav-btn" data-goto="profile">
+          <span class="nav-icon">PF</span>
+          <small>Perfil</small>
+        </button>
+      </nav>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
