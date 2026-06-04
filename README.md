@@ -22,16 +22,22 @@ PWA mobile-first para acompanhamento cardio. Esta versão não gera treinos auto
 
 1. Abra `index.html` em um servidor local ou pelo GitHub Pages.
 2. Toque em `Importar treino`.
-3. Selecione `sample-workout.json` ou toque em `Carregar exemplo`.
+3. Selecione `sample-workout.json`, `corridag-semana-01.json` ou toque em `Carregar exemplo`.
 4. Navegue pelas abas e registre um feedback de treino.
 
-## Estrutura do JSON de treino
+## Estruturas de JSON aceitas
 
-O arquivo precisa conter:
+O app aceita o formato interno completo:
 
 - `app`: deve ser `CorridaG`.
 - `week`: nome da semana.
 - `athlete`: dados básicos do atleta.
 - `workouts`: lista de treinos com dia, título, distância e blocos.
 
-Veja o arquivo `sample-workout.json` como referência.
+Também aceita o formato de personal com:
+
+- `week`: nome da semana.
+- `userProfile`: dados do corredor.
+- `days`: lista de treinos com `targetDistance` e blocos usando `startKm`, `endKm` e `activity`.
+
+Veja `sample-workout.json` e `corridag-semana-01.json` como referências.

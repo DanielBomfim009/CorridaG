@@ -1,0 +1,213 @@
+{
+  "week": "Semana 01",
+  "generatedBy": "CorridaG Personal",
+  "objective": "Emagrecimento",
+  "decision": "MANTER",
+  "reason": "Boa adaptação aos treinos iniciais, sem dores articulares e com fadiga controlada.",
+  "userProfile": {
+    "age": 22,
+    "weight": 120.5,
+    "height": 1.8,
+    "goal": "Emagrecimento",
+    "trainingTime": "Após 18h"
+  },
+  "weeklyTargetKm": 25.8,
+  "days": [
+    {
+      "day": "SEG",
+      "title": "Corrida + Caminhada",
+      "targetDistance": 4,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 0.5,
+          "activity": "Caminhada aquecimento",
+          "pace": "11:00-12:00"
+        },
+        {
+          "id": 2,
+          "startKm": 0.5,
+          "endKm": 1.8,
+          "activity": "Corrida leve",
+          "pace": "8:30-9:30"
+        },
+        {
+          "id": 3,
+          "startKm": 1.8,
+          "endKm": 2.5,
+          "activity": "Caminhada recuperação",
+          "pace": "9:30-10:30"
+        },
+        {
+          "id": 4,
+          "startKm": 2.5,
+          "endKm": 3.3,
+          "activity": "Corrida leve",
+          "pace": "8:30-9:30"
+        },
+        {
+          "id": 5,
+          "startKm": 3.3,
+          "endKm": 4,
+          "activity": "Caminhada final",
+          "pace": "10:00-11:00"
+        }
+      ]
+    },
+    {
+      "day": "TER",
+      "title": "Caminhada Contínua",
+      "targetDistance": 4.4,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 4.4,
+          "activity": "Caminhada contínua",
+          "pace": "9:30-10:30"
+        }
+      ]
+    },
+    {
+      "day": "QUA",
+      "title": "Corrida + Caminhada",
+      "targetDistance": 4,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 0.5,
+          "activity": "Caminhada aquecimento",
+          "pace": "11:00-12:00"
+        },
+        {
+          "id": 2,
+          "startKm": 0.5,
+          "endKm": 1.8,
+          "activity": "Corrida leve",
+          "pace": "8:30-9:30"
+        },
+        {
+          "id": 3,
+          "startKm": 1.8,
+          "endKm": 2.5,
+          "activity": "Caminhada recuperação",
+          "pace": "9:30-10:30"
+        },
+        {
+          "id": 4,
+          "startKm": 2.5,
+          "endKm": 3.3,
+          "activity": "Corrida leve",
+          "pace": "8:30-9:30"
+        },
+        {
+          "id": 5,
+          "startKm": 3.3,
+          "endKm": 4,
+          "activity": "Caminhada final",
+          "pace": "10:00-11:00"
+        }
+      ]
+    },
+    {
+      "day": "QUI",
+      "title": "Caminhada Contínua",
+      "targetDistance": 4.4,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 4.4,
+          "activity": "Caminhada contínua",
+          "pace": "9:30-10:30"
+        }
+      ]
+    },
+    {
+      "day": "SEX",
+      "title": "Corrida + Caminhada",
+      "targetDistance": 4,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 0.5,
+          "activity": "Caminhada aquecimento",
+          "pace": "11:00-12:00"
+        },
+        {
+          "id": 2,
+          "startKm": 0.5,
+          "endKm": 1.8,
+          "activity": "Corrida leve",
+          "pace": "8:30-9:30"
+        },
+        {
+          "id": 3,
+          "startKm": 1.8,
+          "endKm": 2.5,
+          "activity": "Caminhada recuperação",
+          "pace": "9:30-10:30"
+        },
+        {
+          "id": 4,
+          "startKm": 2.5,
+          "endKm": 3.3,
+          "activity": "Corrida leve",
+          "pace": "8:30-9:30"
+        },
+        {
+          "id": 5,
+          "startKm": 3.3,
+          "endKm": 4,
+          "activity": "Caminhada final",
+          "pace": "10:00-11:00"
+        }
+      ]
+    },
+    {
+      "day": "SAB",
+      "title": "Caminhada Longa",
+      "targetDistance": 5,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 1,
+          "activity": "Caminhada aquecimento",
+          "pace": "10:30-11:30"
+        },
+        {
+          "id": 2,
+          "startKm": 1,
+          "endKm": 4,
+          "activity": "Caminhada ritmo forte",
+          "pace": "9:20-10:00"
+        },
+        {
+          "id": 3,
+          "startKm": 4,
+          "endKm": 5,
+          "activity": "Desaceleração",
+          "pace": "10:30-11:30"
+        }
+      ]
+    },
+    {
+      "day": "DOM",
+      "title": "Descanso",
+      "targetDistance": 0,
+      "blocks": [
+        {
+          "id": 1,
+          "startKm": 0,
+          "endKm": 0,
+          "activity": "Descanso",
+          "pace": "-"
+        }
+      ]
+    }
+  ]
+}

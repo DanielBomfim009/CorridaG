@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-tracking-v2";
+const CACHE_NAME = "corridag-tracking-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const ASSETS = [
   "./app.js",
   "./manifest.json",
   "./sample-workout.json",
+  "./corridag-semana-01.json",
   "./assets/logo.svg",
   "./assets/icon-192.svg",
   "./assets/icon-512.svg"

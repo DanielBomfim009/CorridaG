@@ -272,9 +272,61 @@ function ensureSelectedDay() {
   }
 }
 
-function normalizePlan(data) {
-  if (!data || data.app !== "CorridaG") {
-    throw new Error("Arquivo inválido: o campo app precisa ser CorridaG.");
+function normalizeExternalPlan(data) {
+  if (!data || !Array.isArray(data.days)) return data;
+
+  const profile = data.userProfile || {};
+  const goal = profile.goal || data.objective || "--";
+
+  return {
+    app: "CorridaG",
+    version: 2,
+    mode: "tracking",
+    week: data.week || "Semana importada",
+    generatedBy: data.generatedBy || "CorridaG Personal",
+    objective: data.objective || goal,
+    decision: data.decision || null,
+    reason: data.reason || null,
+    weeklyTargetKm: Number(data.weeklyTargetKm || 0),
+    coachNote: data.reason
+      ? `Decisão: ${data.decision || "ACOMPANHAR"}. ${data.reason}`
+      : "Treino importado. Execute os blocos e registre o feedback real após cada sessão.",
+    athlete: {
+      name: profile.name || "Atleta",
+      age: profile.age || null,
+      goal,
+      weight: profile.weight || null,
+      height: profile.height || null,
+      level: profile.level || "--",
+      preferredTime: profile.trainingTime || profile.preferredTime || "--",
+      restrictions: profile.restrictions || "Nenhuma"
+    },
+    workouts: data.days.map((day) => {
+      const distance = Number(day.targetDistance ?? day.distance ?? 0);
+      const blocks = Array.isArray(day.blocks) ? day.blocks : [];
+
+      return {
+        day: day.day,
+        title: day.title,
+        distance,
+        status: distance <= 0 ? "rest" : "pending",
+        blocks: blocks.map((block) => ({
+          id: block.id || null,
+          from: Number(block.startKm ?? block.from ?? 0),
+          to: Number(block.endKm ?? block.to ?? 0),
+          type: block.activity || block.type || "Bloco de treino",
+          pace: block.pace || "Livre"
+        }))
+      };
+    })
+  };
+}
+
+function normalizePlan(input) {
+  const data = normalizeExternalPlan(input);
+
+  if (!data || (data.app && data.app !== "CorridaG")) {
+    throw new Error("Arquivo inválido: este arquivo não parece ser um treino do CorridaG.");
   }
 
   if (!data.week) {

@@ -1,1 +1,30 @@
-<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b" x1="120" y1="110" x2="540" y2="520"><stop stop-color="#1E90FF"/><stop offset="1" stop-color="#00AEEF"/></linearGradient><linearGradient id="g" x1="560" y1="150" x2="900" y2="780"><stop stop-color="#8DF23F"/><stop offset="1" stop-color="#00E676"/></linearGradient><filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="16" result="blur"/><feBlend in="SourceGraphic" in2="blur"/></filter></defs><rect width="1024" height="1024" rx="220" fill="#0B1424"/><path d="M166 268C238 154 376 102 548 112C462 151 390 203 337 272H558L512 367H164C137 367 126 334 142 306C149 293 157 280 166 268Z" fill="url(#b)" filter="url(#glow)"/><path d="M482 666H315C234 666 193 619 207 548C226 454 306 404 421 404H544L505 492H393C348 492 320 511 311 548C304 578 323 590 362 590H518L482 666Z" fill="url(#b)"/><path d="M610 222H879L827 336H666C628 336 594 350 571 377C540 414 546 462 587 488C617 507 654 514 694 514H753L721 590H612C519 590 453 548 438 477C421 397 458 311 531 264C555 248 581 234 610 222Z" fill="url(#g)" filter="url(#glow)"/><path d="M693 420H872L775 664C745 741 676 792 580 805C628 764 658 720 675 669L714 568H648L693 420Z" fill="url(#g)"/><path d="M415 437C433 413 457 405 484 414C501 420 511 432 515 448C520 468 512 486 494 500C475 515 451 517 430 506C404 493 398 460 415 437Z" fill="#8DF23F"/><path d="M488 520L562 551L650 502L682 548L578 621L492 589L444 668L350 724L316 676L393 629L432 548L488 520Z" fill="#8DF23F"/><path d="M468 535L397 515L337 550L311 503L397 455L494 488L468 535Z" fill="#8DF23F"/><path d="M534 604L604 695L689 720L668 778L558 744L487 654L534 604Z" fill="#8DF23F"/><path d="M455 628L426 720L349 786L307 744L373 690L407 604L455 628Z" fill="#8DF23F"/><text x="512" y="900" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="96" font-style="italic" font-weight="900" fill="white">Corrida<tspan fill="#8DF23F">G</tspan></text></svg>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ícone CorridaG</title>
+  <desc id="desc">Ícone quadrado do CorridaG para PWA</desc>
+  <defs>
+    <linearGradient id="blue" x1="120" y1="116" x2="560" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E90FF"/>
+      <stop offset="1" stop-color="#00AEEF"/>
+    </linearGradient>
+    <linearGradient id="green" x1="560" y1="128" x2="900" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8DF23F"/>
+      <stop offset="1" stop-color="#00E676"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.12 0 0 0 0 0.56 0 0 0 0 1 0 0 0 .38 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="220" fill="#0B1424"/>
+  <path d="M166 268C238 154 376 102 548 112C462 151 390 203 337 272H558L512 367H164C137 367 126 334 142 306C149 293 157 280 166 268Z" fill="url(#blue)" filter="url(#glow)"/>
+  <path d="M482 666H315C234 666 193 619 207 548C226 454 306 404 421 404H544L505 492H393C348 492 320 511 311 548C304 578 323 590 362 590H518L482 666Z" fill="url(#blue)"/>
+  <path d="M610 222H879L827 336H666C628 336 594 350 571 377C540 414 546 462 587 488C617 507 654 514 694 514H753L721 590H612C519 590 453 548 438 477C421 397 458 311 531 264C555 248 581 234 610 222Z" fill="url(#green)" filter="url(#glow)"/>
+  <path d="M693 420H872L775 664C745 741 676 792 580 805C628 764 658 720 675 669L714 568H648L693 420Z" fill="url(#green)"/>
+  <path d="M415 437C433 413 457 405 484 414C501 420 511 432 515 448C520 468 512 486 494 500C475 515 451 517 430 506C404 493 398 460 415 437Z" fill="#8DF23F"/>
+  <path d="M488 520L562 551L650 502L682 548L578 621L492 589L444 668L350 724L316 676L393 629L432 548L488 520Z" fill="#8DF23F"/>
+  <path d="M468 535L397 515L337 550L311 503L397 455L494 488L468 535Z" fill="#8DF23F"/>
+  <path d="M534 604L604 695L689 720L668 778L558 744L487 654L534 604Z" fill="#8DF23F"/>
+  <path d="M455 628L426 720L349 786L307 744L373 690L407 604L455 628Z" fill="#8DF23F"/>
+</svg>
