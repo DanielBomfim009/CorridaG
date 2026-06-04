@@ -1536,8 +1536,8 @@ function bindEvents() {
   });
 
   window.addEventListener("resize", () => {
-    renderEvolution();
-    renderHealth();
+    if (document.body.dataset.screen === "evolution") renderEvolution();
+    if (document.body.dataset.screen === "health") renderHealth();
   });
 }
 
