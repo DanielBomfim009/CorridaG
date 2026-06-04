@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-health-history-v1";
+const CACHE_NAME = "corridag-design-fixes-v1";
 const ASSETS = [
   "./",
   "./index.html",

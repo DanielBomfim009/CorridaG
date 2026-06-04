@@ -7,7 +7,8 @@
     <meta name="description" content="CorridaG: acompanhe treinos cardio importados, registre feedbacks e visualize sua evolução." />
     <title>CorridaG</title>
     <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="assets/icon-192.png" type="image/png" />
+    <link rel="icon" href="assets/cg-run-logo.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="assets/icon-192.png" type="image/png" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -27,9 +28,7 @@
             <div class="splash-orbit">
               <img src="assets/cg-run-logo.svg" alt="CG CorridaG" class="splash-logo" />
             </div>
-            <p class="eyebrow">Histórico cardio inteligente</p>
             <h1 id="splash-title" class="splash-wordmark">Corrida<span>G</span></h1>
-            <p class="short-copy">Importe, registre e acompanhe sua evolução.</p>
             <button class="primary-action" id="start-app-btn">Iniciar treino</button>
           </article>
         </section>
@@ -406,15 +405,8 @@
             </article>
           </div>
 
-          <article class="chart-card">
-            <div class="chart-head">
-              <strong>Projeção de peso</strong>
-              <span id="projection-caption">Meta</span>
-            </div>
-            <canvas id="weight-chart" height="220"></canvas>
-          </article>
-
           <form id="weight-form" class="inline-form health-form" novalidate>
+            <h3>Atualizar peso</h3>
             <div class="field-row">
               <label>
                 Peso da semana
@@ -439,12 +431,28 @@
             </div>
           </article>
 
+          <h3 class="panel-title">Atualizar água</h3>
+          <form id="water-form" class="inline-form health-form compact-form" novalidate>
+            <label>
+              Quantidade em ml
+              <input name="amount" type="text" inputmode="numeric" placeholder="0" required />
+            </label>
+            <button class="primary-action" type="submit">Adicionar água</button>
+          </form>
           <div class="quick-actions">
             <button class="secondary-action" type="button" data-water-add="250">+250 ml</button>
             <button class="secondary-action" type="button" data-water-add="500">+500 ml</button>
             <button class="secondary-action" type="button" data-water-add="1000">+1000 ml</button>
           </div>
           <button class="secondary-action full-action" id="reset-water-btn" type="button">Zerar água de hoje</button>
+
+          <article class="chart-card">
+            <div class="chart-head">
+              <strong>Projeção de peso</strong>
+              <span id="projection-caption">Meta</span>
+            </div>
+            <canvas id="weight-chart" height="220"></canvas>
+          </article>
         </section>
 
         <section id="import" class="screen" aria-labelledby="import-title">

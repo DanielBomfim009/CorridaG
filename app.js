@@ -919,8 +919,7 @@ function renderHealth() {
 
   const form = $("weight-form");
   if (form) {
-    form.elements.date.value = todayISO();
-    form.elements.weight.value = "";
+    if (!form.elements.date.value) form.elements.date.value = todayISO();
   }
 
   drawWeightProjectionChart("weight-chart", logs, projection);
@@ -932,8 +931,8 @@ function renderAll() {
   renderHome();
   renderTraining();
   renderFeedbackScreen();
-  renderEvolution();
-  renderHealth();
+  if (document.body.dataset.screen === "evolution") renderEvolution();
+  if (document.body.dataset.screen === "health") renderHealth();
   renderImport();
   renderProfileSetup();
   renderProfile();
@@ -942,6 +941,7 @@ function renderAll() {
 function setupCanvas(id) {
   const canvas = $(id);
   if (!canvas) return null;
+  if (canvas.offsetParent === null) return null;
   const width = Math.max(280, (canvas.parentElement?.clientWidth || 320) - 32);
   const height = Number(canvas.getAttribute("height")) || 220;
   const ratio = window.devicePixelRatio || 1;
@@ -1137,7 +1137,7 @@ function goTo(id, persist = true) {
     saveState();
   }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "auto" });
   requestAnimationFrame(() => {
     if (id === "evolution") renderEvolution();
     if (id === "health") renderHealth();
@@ -1380,7 +1380,7 @@ function bindEvents() {
   const distanceInput = document.querySelector('[name="distance"]');
   if (distanceInput) bindDistanceMask(distanceInput);
 
-  document.querySelectorAll('#profile-form [name="weight"], #profile-form [name="targetWeight"], #profile-form [name="height"], #weight-form [name="weight"]').forEach((input) => {
+  document.querySelectorAll('#profile-form [name="weight"], #profile-form [name="targetWeight"], #profile-form [name="height"], #weight-form [name="weight"], #water-form [name="amount"]').forEach((input) => {
     bindDistanceMask(input);
   });
 
@@ -1480,6 +1480,8 @@ function bindEvents() {
     upsertWeightLog(weight, date, "manual");
     state.profile = { ...state.profile, weight };
     saveState();
+    form.elements.weight.value = "";
+    form.elements.date.value = todayISO();
     renderAll();
     alert("Peso registrado com sucesso.");
   });
@@ -1491,6 +1493,21 @@ function bindEvents() {
       saveState();
       renderHealth();
     });
+  });
+
+  $("water-form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const amount = parseDecimal(form.elements.amount.value);
+    if (!amount) {
+      alert("Informe a quantidade de água.");
+      return;
+    }
+    const log = waterLog();
+    log.amount = Math.max(0, Number(log.amount || 0) + amount);
+    form.elements.amount.value = "";
+    saveState();
+    renderHealth();
   });
 
   $("reset-water-btn")?.addEventListener("click", () => {
