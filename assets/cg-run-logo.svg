@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 260" role="img" aria-labelledby="title desc">
+  <title id="title">CorridaG CG</title>
+  <desc id="desc">Monograma CG com sensação de corrida e movimento.</desc>
+  <defs>
+    <linearGradient id="cg-blue" x1="34" x2="206" y1="50" y2="207" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00AEEF"/>
+      <stop offset="1" stop-color="#1E90FF"/>
+    </linearGradient>
+    <linearGradient id="cg-green" x1="196" x2="378" y1="48" y2="215" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8DF23F"/>
+      <stop offset="1" stop-color="#00E676"/>
+    </linearGradient>
+    <filter id="cg-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000814" flood-opacity=".45"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#00AEEF" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <g filter="url(#cg-glow)">
+    <path fill="url(#cg-blue)" d="M156 48c-58 0-105 44-105 98s47 98 105 98c32 0 59-12 79-33l-35-34c-11 12-26 19-44 19-29 0-53-22-53-50s24-50 53-50c18 0 33 7 44 19l35-34c-20-21-47-33-79-33Z"/>
+    <path fill="url(#cg-green)" d="M287 48c-61 0-105 43-105 98 0 56 44 98 105 98 32 0 62-12 83-33v-84h-91v45h42v17c-9 6-20 9-34 9-32 0-53-21-53-52 0-30 21-52 53-52 19 0 34 7 48 20l34-35c-21-20-48-31-82-31Z"/>
+    <path fill="#0B1424" opacity=".9" d="M96 143c0-36 29-65 68-65 22 0 41 8 55 23l-20 19c-9-10-21-15-35-15-23 0-40 16-40 38 0 21 17 38 40 38 14 0 26-5 35-15l20 19c-14 15-33 23-55 23-39 0-68-29-68-65Z"/>
+    <path fill="#0B1424" opacity=".9" d="M270 78c-41 0-69 29-69 68 0 40 28 68 69 68 23 0 44-8 59-23v-47h-58v25h30v9c-7 4-16 6-27 6-25 0-42-16-42-38 0-23 17-39 42-39 16 0 28 5 39 15l20-20c-15-16-36-24-63-24Z"/>
+    <path fill="#8DF23F" d="M212 114c7 0 12 5 12 12s-5 12-12 12-12-5-12-12 5-12 12-12Zm-22 34 22-7 23 15 28-7 6 16-34 11-19-11-8 26 23 18-10 15-34-23 10-41-16 7-19 20-13-11 24-25 17-3Z"/>
+    <path fill="#00AEEF" d="M72 118h83l-17 16H54l18-16Zm-25 49h92l-19 16H28l19-16Zm218-58h98l-18 16h-88l8-16Zm-10 72h109l-19 16H237l18-16Z" opacity=".96"/>
+  </g>
+</svg>

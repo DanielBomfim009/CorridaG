@@ -15,7 +15,7 @@
     <div class="app-shell">
       <header class="topbar">
         <button class="brand-button" data-goto="home" aria-label="CorridaG - ir para o início">
-          <img src="assets/logo-symbol.png" alt="" />
+          <img src="assets/cg-run-logo.svg" alt="" />
           <span>CorridaG</span>
         </button>
         <button class="ghost-button compact" data-goto="import">Importar</button>
@@ -25,11 +25,11 @@
         <section id="splash" class="screen active" aria-labelledby="splash-title">
           <article class="splash-card">
             <div class="splash-orbit">
-              <img src="assets/logo-splash.png" alt="CorridaG" class="splash-logo" />
+              <img src="assets/cg-run-logo.svg" alt="CG CorridaG" class="splash-logo" />
             </div>
-            <p class="eyebrow">Personal Cardio Inteligente</p>
+            <p class="eyebrow">Histórico cardio inteligente</p>
             <h1 id="splash-title" class="splash-wordmark">Corrida<span>G</span></h1>
-            <p class="short-copy">Seu treino. Seu ritmo. Seu resultado.</p>
+            <p class="short-copy">Importe, registre e acompanhe sua evolução.</p>
             <button class="primary-action" id="start-app-btn">Iniciar treino</button>
           </article>
         </section>
@@ -60,12 +60,12 @@
 
                 <label>
                   Nome
-                  <input name="name" type="text" autocomplete="name" placeholder="Seu nome" required />
+                  <input name="name" type="text" autocomplete="name" placeholder="Nome" required />
                 </label>
                 <div class="field-row">
                   <label>
                     Idade
-                    <input name="age" type="number" min="12" max="100" inputmode="numeric" placeholder="22" required />
+                    <input name="age" type="number" min="12" max="100" inputmode="numeric" placeholder="0" required />
                   </label>
                   <label>
                     Sexo
@@ -83,13 +83,17 @@
                 <div class="field-row">
                   <label>
                     Peso atual
-                    <input name="weight" type="text" inputmode="decimal" placeholder="82,5" required />
+                    <input name="weight" type="text" inputmode="decimal" placeholder="0" required />
                   </label>
                   <label>
-                    Altura
-                    <input name="height" type="text" inputmode="decimal" placeholder="1,80" required />
+                    Meta de peso
+                    <input name="targetWeight" type="text" inputmode="decimal" placeholder="0" required />
                   </label>
                 </div>
+                <label>
+                  Altura
+                  <input name="height" type="text" inputmode="decimal" placeholder="0" required />
+                </label>
                 <label>
                   Nível atual
                   <select name="level" required>
@@ -222,6 +226,11 @@
 
           <div id="day-tabs" class="day-tabs" aria-label="Dias da semana"></div>
 
+          <label class="select-card week-control">
+            Semana em exibição
+            <select id="week-select"></select>
+          </label>
+
           <article class="workout-panel">
             <div class="workout-heading">
               <div>
@@ -260,17 +269,17 @@
             <div class="field-row">
               <label>
                 Distância realizada
-                <input name="distance" type="text" inputmode="decimal" autocomplete="off" placeholder="4,40" required />
+                <input name="distance" type="text" inputmode="decimal" autocomplete="off" placeholder="0" required />
               </label>
               <label>
                 Tempo total
-                <input name="time" type="text" inputmode="numeric" autocomplete="off" placeholder="39:54" data-mask="time" required />
+                <input name="time" type="text" inputmode="numeric" autocomplete="off" placeholder="0" data-mask="time" required />
               </label>
             </div>
 
             <label>
               Pace médio
-              <input name="pace" type="text" inputmode="numeric" autocomplete="off" placeholder="09:03" data-mask="pace" required />
+              <input name="pace" type="text" inputmode="numeric" autocomplete="off" placeholder="0" data-mask="pace" required />
             </label>
 
             <fieldset class="segmented-field">
@@ -326,6 +335,11 @@
             <span id="evolution-count" class="pill">0 registros</span>
           </div>
 
+          <label class="select-card week-control">
+            Filtrar por semana
+            <select id="history-week-filter"></select>
+          </label>
+
           <div class="metric-grid compact-grid">
             <article class="metric-card">
               <span>Distância total</span>
@@ -362,6 +376,75 @@
           </article>
 
           <div id="history-list" class="history-list"></div>
+        </section>
+
+        <section id="health" class="screen" aria-labelledby="health-title">
+          <div class="screen-title">
+            <div>
+              <p class="eyebrow">Peso e água</p>
+              <h2 id="health-title">Saúde</h2>
+            </div>
+            <span id="health-date" class="pill">Hoje</span>
+          </div>
+
+          <div class="metric-grid compact-grid">
+            <article class="metric-card">
+              <span>Peso atual</span>
+              <strong id="health-current-weight">--</strong>
+            </article>
+            <article class="metric-card">
+              <span>Meta de peso</span>
+              <strong id="health-target-weight">--</strong>
+            </article>
+            <article class="metric-card">
+              <span>Média semanal</span>
+              <strong id="health-weekly-loss">--</strong>
+            </article>
+            <article class="metric-card">
+              <span>Projeção</span>
+              <strong id="health-projection">--</strong>
+            </article>
+          </div>
+
+          <article class="chart-card">
+            <div class="chart-head">
+              <strong>Projeção de peso</strong>
+              <span id="projection-caption">Meta</span>
+            </div>
+            <canvas id="weight-chart" height="220"></canvas>
+          </article>
+
+          <form id="weight-form" class="inline-form health-form" novalidate>
+            <div class="field-row">
+              <label>
+                Peso da semana
+                <input name="weight" type="text" inputmode="decimal" placeholder="0" required />
+              </label>
+              <label>
+                Data
+                <input name="date" type="date" required />
+              </label>
+            </div>
+            <button class="primary-action" type="submit">Registrar peso</button>
+          </form>
+
+          <article class="water-card">
+            <div>
+              <span class="label">Água de hoje</span>
+              <strong id="water-today">0 ml</strong>
+              <small id="water-goal">Meta calculada: 0 ml</small>
+            </div>
+            <div class="progress-ring" id="water-ring">
+              <b id="water-percent">0%</b>
+            </div>
+          </article>
+
+          <div class="quick-actions">
+            <button class="secondary-action" type="button" data-water-add="250">+250 ml</button>
+            <button class="secondary-action" type="button" data-water-add="500">+500 ml</button>
+            <button class="secondary-action" type="button" data-water-add="1000">+1000 ml</button>
+          </div>
+          <button class="secondary-action full-action" id="reset-water-btn" type="button">Zerar água de hoje</button>
         </section>
 
         <section id="import" class="screen" aria-labelledby="import-title">
@@ -411,6 +494,7 @@
           <div class="profile-list">
             <div><span>Objetivo</span><b id="profile-objective">--</b></div>
             <div><span>Peso atual</span><b id="profile-weight">--</b></div>
+            <div><span>Meta de peso</span><b id="profile-target-weight">--</b></div>
             <div><span>Altura</span><b id="profile-height">--</b></div>
             <div><span>Nível</span><b id="profile-level">--</b></div>
             <div><span>Horário preferido</span><b id="profile-time">--</b></div>
@@ -448,6 +532,12 @@
             <svg viewBox="0 0 24 24"><path d="M4 19h16v2H3a1 1 0 0 1-1-1V4h2v15Zm3.2-2.8-1.4-1.4 4.5-4.5 3 3L18.6 8H16V6h6v6h-2V9.4l-6.7 6.7-3-3-3.1 3.1Z"/></svg>
           </span>
           <small>Evolução</small>
+        </button>
+        <button class="nav-btn" data-goto="health">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 21c-4.2-3.8-7-7.1-7-10.2C5 7.5 7.5 5 10.4 5c1.5 0 2.8.7 3.6 1.8C14.8 5.7 16.1 5 17.6 5 20.5 5 23 7.5 23 10.8c0 3.1-2.8 6.4-7 10.2l-2-1.8L12 21ZM2 13h4l1.5-4.5L10 16l2-6 1.5 3H18v2h-5.7l-.9-1.8L10 17.5 7.5 10 7 15H2v-2Z"/></svg>
+          </span>
+          <small>Saúde</small>
         </button>
         <button class="nav-btn" data-goto="profile">
           <span class="nav-icon" aria-hidden="true">

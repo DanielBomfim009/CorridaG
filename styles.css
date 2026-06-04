@@ -168,6 +168,7 @@ p {
 .profile-list,
 .status-card,
 .drop-zone,
+.water-card,
 .pain-grid {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -178,13 +179,15 @@ p {
 .splash-card {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  min-height: calc(100vh - 182px);
-  padding: 24px;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100svh - 28px);
+  padding: 30px 24px;
   overflow: hidden;
+  text-align: center;
   background:
-    radial-gradient(circle at 50% 18%, rgba(30, 144, 255, 0.28), transparent 170px),
-    radial-gradient(circle at 72% 34%, rgba(141, 242, 63, 0.16), transparent 150px),
+    radial-gradient(circle at 50% 30%, rgba(30, 144, 255, 0.24), transparent 190px),
+    radial-gradient(circle at 70% 42%, rgba(141, 242, 63, 0.16), transparent 160px),
     linear-gradient(180deg, rgba(17, 28, 52, 0.96), var(--card));
 }
 
@@ -192,9 +195,9 @@ p {
   position: relative;
   display: grid;
   place-items: center;
-  width: min(300px, 74vw);
-  height: min(214px, 54vw);
-  margin: 0 auto auto;
+  width: min(292px, 74vw);
+  height: min(190px, 48vw);
+  margin: 0 auto 14px;
 }
 
 .splash-orbit::before {
@@ -213,7 +216,7 @@ p {
 .splash-logo {
   position: relative;
   display: block;
-  width: min(270px, 68vw);
+  width: min(260px, 66vw);
   height: auto;
   object-fit: contain;
   filter:
@@ -249,7 +252,7 @@ p {
 .splash-card h1 {
   max-width: none;
   margin-bottom: 4px;
-  font-size: clamp(2.55rem, 15vw, 4.4rem);
+  font-size: clamp(2.45rem, 14vw, 4.15rem);
 }
 
 .splash-wordmark {
@@ -371,9 +374,11 @@ p {
 }
 
 .short-copy {
+  max-width: 270px;
   margin-bottom: 20px;
   color: var(--white);
   font-size: 1.02rem;
+  text-align: center;
 }
 
 .hero-card {
@@ -575,6 +580,19 @@ p {
   padding: 2px 2px 12px;
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+.select-card {
+  display: grid;
+  gap: 8px;
+  margin-bottom: var(--gap);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.82rem;
+  font-weight: 900;
 }
 
 .day-tabs::-webkit-scrollbar {
@@ -816,6 +834,37 @@ input[type="range"] {
   padding: 14px;
 }
 
+.water-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 82px;
+  gap: var(--gap);
+  align-items: center;
+  margin-top: var(--gap);
+  padding: 16px;
+}
+
+.water-card strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--white);
+  font-size: 1.45rem;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: var(--gap);
+}
+
+.health-form {
+  margin-top: var(--gap);
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .form-message {
   min-height: 20px;
   margin: 0;
@@ -915,6 +964,12 @@ body[data-screen="profile-setup"] .app-shell {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+body[data-screen="splash"] .app-shell {
+  display: grid;
+  min-height: 100svh;
+  padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+}
+
 .profile-card strong {
   display: block;
   color: var(--white);
@@ -973,8 +1028,8 @@ body[data-screen="profile-setup"] .app-shell {
   left: 50%;
   z-index: 30;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
   width: min(450px, 100%);
   padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
@@ -988,7 +1043,7 @@ body[data-screen="profile-setup"] .app-shell {
   place-items: center;
   gap: 3px;
   min-height: 58px;
-  border-radius: 20px;
+  border-radius: 18px;
   color: var(--muted);
   background: transparent;
 }
@@ -1010,7 +1065,7 @@ body[data-screen="profile-setup"] .app-shell {
 
 .nav-btn small {
   color: inherit;
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   font-weight: 800;
 }
 

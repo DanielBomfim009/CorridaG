@@ -14,10 +14,15 @@ let setupStep = 1;
 function freshState() {
   return {
     plan: null,
+    plans: [],
+    activePlanId: null,
+    selectedHistoryPlanId: "all",
     selectedDay: null,
     feedbackDraftDay: null,
     blockProgress: {},
     feedbacks: [],
+    weightLogs: [],
+    waterLogs: [],
     profile: {},
     profileComplete: false,
     lastImport: null,
@@ -27,8 +32,21 @@ function freshState() {
 
 function normalizeState(raw = {}) {
   const state = { ...freshState(), ...raw };
+  state.plans = Array.isArray(raw.plans) ? raw.plans : [];
+  if (!state.plans.length && raw.plan) state.plans = [raw.plan];
+  state.plan = raw.plan || state.plans[0] || null;
+  state.activePlanId = raw.activePlanId || state.plan?.id || null;
+  if (state.plan && !state.plan.id) state.plan.id = String(state.plan.week || state.plan.createdAt || "semana");
+  state.plans = state.plans.map((plan) => ({
+    ...plan,
+    id: plan.id || String(plan.week || plan.createdAt || "semana")
+  }));
+  if (state.activePlanId) state.plan = state.plans.find((plan) => plan.id === state.activePlanId) || state.plan;
   state.blockProgress = raw.blockProgress || {};
   state.feedbacks = Array.isArray(raw.feedbacks) ? raw.feedbacks : [];
+  state.weightLogs = Array.isArray(raw.weightLogs) ? raw.weightLogs : [];
+  state.waterLogs = Array.isArray(raw.waterLogs) ? raw.waterLogs : [];
+  state.selectedHistoryPlanId = raw.selectedHistoryPlanId || "all";
   state.profile = raw.profile || {};
   state.profileComplete = Boolean(raw.profileComplete);
   return state;
@@ -90,6 +108,22 @@ function formatKm(value, digits = 1) {
 
 function formatWeight(value) {
   return value ? `${formatDecimal(value, 1)} kg` : "--";
+}
+
+function formatMl(value) {
+  return `${Math.round(Number(value || 0)).toLocaleString("pt-BR")} ml`;
+}
+
+function dateAddDays(iso, days) {
+  const date = new Date(`${iso}T00:00:00`);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function daysBetween(start, end) {
+  const a = new Date(`${start}T00:00:00`).getTime();
+  const b = new Date(`${end}T00:00:00`).getTime();
+  return Math.max(0, (b - a) / 86400000);
 }
 
 function initialsFromName(name = "") {
@@ -309,6 +343,7 @@ function profileFromPlan(plan) {
     name: athlete.name || "Atleta",
     goal: athlete.goal || plan.objective || "--",
     weight: athlete.weight ? Number(athlete.weight) : null,
+    targetWeight: athlete.targetWeight ? Number(athlete.targetWeight) : null,
     height: athlete.height ? Number(athlete.height) : null,
     level: athlete.level || "--",
     preferredTime: athlete.preferredTime || "--",
@@ -325,6 +360,7 @@ function isProfileComplete(profile = state.profile) {
     profile.age &&
     profile.sex &&
     profile.weight &&
+    profile.targetWeight &&
     profile.height &&
     profile.level &&
     profile.goal &&
@@ -335,12 +371,54 @@ function isProfileComplete(profile = state.profile) {
   );
 }
 
+function planIdFrom(plan, fallback = Date.now()) {
+  const base = String(plan?.week || plan?.createdAt || fallback)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return base || String(fallback);
+}
+
+function activePlan() {
+  if (state.activePlanId) {
+    const found = state.plans.find((plan) => plan.id === state.activePlanId);
+    if (found) {
+      state.plan = found;
+      return found;
+    }
+  }
+
+  const fallback = state.plan || state.plans[0] || null;
+  state.plan = fallback;
+  state.activePlanId = fallback?.id || null;
+  return fallback;
+}
+
+function setActivePlan(planId) {
+  const plan = state.plans.find((item) => item.id === planId) || null;
+  if (!plan) return;
+  state.activePlanId = plan.id;
+  state.plan = plan;
+  state.selectedDay = null;
+  ensureSelectedDay();
+  saveState();
+}
+
+function feedbacksForPlan(planId = state.selectedHistoryPlanId) {
+  if (!planId || planId === "all") return [...state.feedbacks];
+  return state.feedbacks.filter((feedback) => feedback.planKey === planId);
+}
+
 function getPlanKey() {
-  return String(state.plan?.id || state.plan?.createdAt || state.plan?.week || "semana");
+  const plan = activePlan();
+  return String(plan?.id || plan?.createdAt || plan?.week || "semana");
 }
 
 function getWorkouts() {
-  return Array.isArray(state.plan?.workouts) ? state.plan.workouts : [];
+  const plan = activePlan();
+  return Array.isArray(plan?.workouts) ? plan.workouts : [];
 }
 
 function isRestWorkout(workout) {
@@ -403,6 +481,75 @@ function latestFeedback() {
   return state.feedbacks[state.feedbacks.length - 1] || null;
 }
 
+function sortedWeightLogs() {
+  const logs = [...state.weightLogs]
+    .filter((item) => item.weight && item.date)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (!logs.length && state.profile?.weight) {
+    logs.push({ date: todayISO(), weight: Number(state.profile.weight), source: "perfil" });
+  }
+
+  return logs;
+}
+
+function latestWeight() {
+  const logs = sortedWeightLogs();
+  return logs.at(-1)?.weight || Number(state.profile?.weight || 0);
+}
+
+function upsertWeightLog(weight, date = todayISO(), source = "manual") {
+  const value = Number(weight || 0);
+  if (!value || !date) return;
+  const existing = state.weightLogs.find((item) => item.date === date);
+  if (existing) {
+    existing.weight = value;
+    existing.source = source;
+  } else {
+    state.weightLogs.push({ date, weight: value, source });
+  }
+  state.weightLogs.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function waterGoal() {
+  const weight = latestWeight();
+  if (!weight) return 2500;
+  return Math.round(Math.min(4500, Math.max(2000, weight * 35)) / 50) * 50;
+}
+
+function waterLog(date = todayISO()) {
+  let log = state.waterLogs.find((item) => item.date === date);
+  if (!log) {
+    log = { date, amount: 0 };
+    state.waterLogs.push(log);
+  }
+  return log;
+}
+
+function weightProjection() {
+  const logs = sortedWeightLogs();
+  const target = Number(state.profile?.targetWeight || 0);
+  const current = latestWeight();
+
+  if (!target || !current || logs.length < 2) {
+    return { weeklyLoss: 0, weeksNeeded: 0, targetDate: "", current, target };
+  }
+
+  const first = logs[0];
+  const last = logs.at(-1);
+  const weeks = Math.max(daysBetween(first.date, last.date) / 7, 1 / 7);
+  const weeklyLoss = (Number(first.weight) - Number(last.weight)) / weeks;
+  const remaining = current - target;
+
+  if (weeklyLoss <= 0 || remaining <= 0) {
+    return { weeklyLoss, weeksNeeded: 0, targetDate: "", current, target };
+  }
+
+  const weeksNeeded = remaining / weeklyLoss;
+  const targetDate = dateAddDays(last.date, Math.ceil(weeksNeeded * 7));
+  return { weeklyLoss, weeksNeeded, targetDate, current, target };
+}
+
 function ensureSelectedDay() {
   const workouts = getWorkouts();
 
@@ -418,35 +565,73 @@ function ensureSelectedDay() {
 
 function importPlan(data, fileName = "treino.json") {
   const plan = normalizePlan(data);
+  const importedAt = nowISO();
+  const existing = state.plans.find((item) => item.week === plan.week);
+  plan.id = existing?.id || plan.id || planIdFrom(plan, importedAt);
+  plan.importedAt = importedAt;
+  plan.fileName = fileName;
   const firstWorkout = plan.workouts.find((workout) => !isRestWorkout(workout)) || plan.workouts[0];
   const importedProfile = profileFromPlan(plan);
 
+  const existingIndex = state.plans.findIndex((item) => item.id === plan.id);
+  if (existingIndex >= 0) state.plans[existingIndex] = plan;
+  else state.plans.push(plan);
+
   state.plan = plan;
+  state.activePlanId = plan.id;
   state.profile = state.profileComplete
     ? {
         ...importedProfile,
         ...state.profile,
         goal: state.profile.goal || importedProfile.goal,
         weight: state.profile.weight || importedProfile.weight,
+        targetWeight: state.profile.targetWeight || importedProfile.targetWeight,
         height: state.profile.height || importedProfile.height
       }
     : { ...importedProfile, ...state.profile };
   state.selectedDay = firstWorkout?.day || null;
   state.feedbackDraftDay = null;
-  state.blockProgress = {};
   state.lastImport = {
-    date: nowISO(),
+    date: importedAt,
     fileName,
-    week: plan.week
+    week: plan.week,
+    planId: plan.id
   };
+  if (state.profile.weight) upsertWeightLog(state.profile.weight, todayISO(), "perfil");
 
   saveState();
   renderAll();
   goTo("home");
 }
 
+function renderWeekControls() {
+  const plan = activePlan();
+  const weekSelect = $("week-select");
+  if (weekSelect) {
+    weekSelect.innerHTML = state.plans.length
+      ? state.plans.map((item) => `<option value="${item.id}">${item.week || "Semana importada"}</option>`).join("")
+      : '<option value="">Nenhuma semana importada</option>';
+    weekSelect.value = plan?.id || "";
+    weekSelect.disabled = !state.plans.length;
+  }
+
+  const historyFilter = $("history-week-filter");
+  if (historyFilter) {
+    if (state.selectedHistoryPlanId !== "all" && !state.plans.some((item) => item.id === state.selectedHistoryPlanId)) {
+      state.selectedHistoryPlanId = "all";
+    }
+    historyFilter.innerHTML = [
+      '<option value="all">Todas as semanas</option>',
+      ...state.plans.map((item) => `<option value="${item.id}">${item.week || "Semana importada"}</option>`)
+    ].join("");
+    historyFilter.value = state.selectedHistoryPlanId || "all";
+    historyFilter.disabled = !state.plans.length && !state.feedbacks.length;
+  }
+}
+
 function renderHome() {
   const profile = state.profile || {};
+  const plan = activePlan();
   const firstName = String(profile.name || "atleta").split(" ")[0];
   const planned = plannedWorkouts().length;
   const done = completedWorkouts().length;
@@ -458,12 +643,12 @@ function renderHome() {
   const averagePace = paces.length ? paces.reduce((sum, pace) => sum + pace, 0) / paces.length : 0;
 
   setText("home-greeting", `Olá, ${firstName}`);
-  setText("coach-note", state.plan?.coachNote || "Importe o treino da semana para começar o acompanhamento.");
+  setText("coach-note", plan?.coachNote || "Importe o treino da semana para começar o acompanhamento.");
   setText("today-title", next ? `${next.day} - ${next.title}` : "Nenhum treino importado");
   setText("today-detail", next ? `${formatKm(next.distance, 1)} planejados` : "Importe um arquivo JSON para visualizar os blocos.");
   setText("week-percent", `${percent}%`);
   setText("week-progress", `${done} de ${planned}`);
-  setText("week-label", state.plan?.week || "Sem treino importado");
+  setText("week-label", plan?.week || "Sem treino importado");
   setText("total-distance", formatKm(totalDistance, 2));
   setText("avg-pace", averagePace ? `${formatPace(averagePace)}/km` : "--");
   setText("next-workout", next?.day || "--");
@@ -510,11 +695,12 @@ function renderTraining() {
   ensureSelectedDay();
   renderDayTabs();
 
+  const plan = activePlan();
   const workout = getWorkout();
   const progress = getWorkoutProgress(workout);
   const finishButton = $("finish-workout-btn");
 
-  setText("training-week", state.plan?.week || "Sem plano");
+  setText("training-week", plan?.week || "Sem plano");
   setText("selected-day", workout?.day || "--");
   setText("selected-title", workout?.title || "Importe um treino");
   setText("selected-distance", workout ? formatKm(workout.distance, 1) : "0 km");
@@ -601,7 +787,7 @@ function renderFeedbackScreen() {
 }
 
 function renderEvolution() {
-  const feedbacks = [...state.feedbacks];
+  const feedbacks = feedbacksForPlan();
   const totalDistance = feedbacks.reduce((sum, item) => sum + Number(item.distance || 0), 0);
   const paces = feedbacks.map((item) => timeToSeconds(item.pace)).filter(Boolean);
   const averagePace = paces.length ? paces.reduce((sum, pace) => sum + pace, 0) / paces.length : 0;
@@ -616,14 +802,14 @@ function renderEvolution() {
   const labels = feedbacks.map((item) => item.day || formatDate(item.date));
   drawBarChart("distance-chart", labels, feedbacks.map((item) => Number(item.distance || 0)));
   drawLineChart("pace-chart", labels, feedbacks.map((item) => timeToSeconds(item.pace) / 60 || 0));
-  renderHistory();
+  renderHistory(feedbacks);
 }
 
-function renderHistory() {
+function renderHistory(feedbacks = feedbacksForPlan()) {
   const container = $("history-list");
   if (!container) return;
 
-  const items = [...state.feedbacks].reverse().slice(0, 8);
+  const items = [...feedbacks].reverse().slice(0, 12);
   if (!items.length) {
     container.innerHTML = `
       <article class="history-item">
@@ -640,7 +826,7 @@ function renderHistory() {
     <article class="history-item">
       <div>
         <strong>${item.day} - ${formatKm(item.distance, 2)}</strong>
-        <small>${formatDate(item.date)} · ${item.time} · ${item.pace}/km</small>
+        <small>${item.week || "Semana"} · ${formatDate(item.date)} · ${item.time} · ${item.pace}/km</small>
       </div>
       <span>${item.feelingLabel}</span>
     </article>
@@ -666,6 +852,7 @@ function renderProfileSetup() {
   form.elements.age.value = profile.age || "";
   form.elements.sex.value = profile.sex || "";
   form.elements.weight.value = profile.weight ? String(profile.weight).replace(".", ",") : "";
+  form.elements.targetWeight.value = profile.targetWeight ? String(profile.targetWeight).replace(".", ",") : "";
   form.elements.height.value = profile.height ? String(profile.height).replace(".", ",") : "";
   form.elements.level.value = profile.level || "";
   form.elements.goal.value = profile.goal || "";
@@ -686,6 +873,7 @@ function renderProfile() {
   setText("profile-goal", profile.goal || "Importe um treino");
   setText("profile-objective", profile.goal || "--");
   setText("profile-weight", formatWeight(profile.weight));
+  setText("profile-target-weight", formatWeight(profile.targetWeight));
   setText("profile-height", profile.height ? `${formatDecimal(profile.height, 2)} m` : "--");
   setText("profile-level", profile.level || "--");
   setText("profile-time", profile.preferredTime || "--");
@@ -707,12 +895,45 @@ function renderProfile() {
   }
 }
 
+function renderHealth() {
+  const projection = weightProjection();
+  const logs = sortedWeightLogs();
+  const current = latestWeight();
+  const target = Number(state.profile?.targetWeight || 0);
+  const water = waterLog();
+  const goal = waterGoal();
+  const waterPercent = goal ? Math.min(100, Math.round((water.amount / goal) * 100)) : 0;
+
+  setText("health-date", formatDate(todayISO()));
+  setText("health-current-weight", formatWeight(current));
+  setText("health-target-weight", formatWeight(target));
+  setText("health-weekly-loss", projection.weeklyLoss > 0 ? `${formatDecimal(projection.weeklyLoss, 2)} kg/sem` : "--");
+  setText("health-projection", projection.targetDate ? formatDate(projection.targetDate) : "--");
+  setText("projection-caption", projection.targetDate ? `Meta em ${Math.ceil(projection.weeksNeeded)} sem` : "Registre 2 pesos");
+  setText("water-today", formatMl(water.amount));
+  setText("water-goal", `Meta calculada: ${formatMl(goal)}`);
+  setText("water-percent", `${waterPercent}%`);
+
+  const ring = $("water-ring");
+  if (ring) ring.style.setProperty("--p", `${waterPercent * 3.6}deg`);
+
+  const form = $("weight-form");
+  if (form) {
+    form.elements.date.value = todayISO();
+    form.elements.weight.value = "";
+  }
+
+  drawWeightProjectionChart("weight-chart", logs, projection);
+}
+
 function renderAll() {
   ensureSelectedDay();
+  renderWeekControls();
   renderHome();
   renderTraining();
   renderFeedbackScreen();
   renderEvolution();
+  renderHealth();
   renderImport();
   renderProfileSetup();
   renderProfile();
@@ -827,6 +1048,68 @@ function drawLineChart(id, labels, values) {
   });
 }
 
+function drawWeightProjectionChart(id, logs, projection) {
+  const chart = setupCanvas(id);
+  if (!chart) return;
+  const { ctx, width, height } = chart;
+  const actual = logs.map((item) => ({ label: formatDate(item.date), value: Number(item.weight || 0), projected: false }));
+
+  if (!actual.length) return drawEmptyChart(ctx, width, height);
+
+  const data = [...actual];
+  if (projection.targetDate && projection.target) {
+    data.push({ label: formatDate(projection.targetDate), value: Number(projection.target), projected: true });
+  }
+
+  const values = data.map((item) => item.value).filter(Boolean);
+  const padding = { top: 18, right: 16, bottom: 36, left: 38 };
+  const plotW = width - padding.left - padding.right;
+  const plotH = height - padding.top - padding.bottom;
+  const min = Math.min(...values) - 1;
+  const max = Math.max(...values) + 1;
+  const range = max - min || 1;
+  const points = data.map((item, index) => ({
+    ...item,
+    x: padding.left + (plotW / Math.max(1, data.length - 1)) * index,
+    y: padding.top + plotH - ((item.value - min) / range) * plotH
+  }));
+
+  drawGrid(ctx, width, height, padding, plotH);
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    if (index === 0) ctx.moveTo(point.x, point.y);
+    else ctx.lineTo(point.x, point.y);
+  });
+  ctx.strokeStyle = "#8DF23F";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  if (points.some((point) => point.projected)) {
+    const lastActual = points.filter((point) => !point.projected).at(-1);
+    const projected = points.find((point) => point.projected);
+    ctx.beginPath();
+    ctx.moveTo(lastActual.x, lastActual.y);
+    ctx.lineTo(projected.x, projected.y);
+    ctx.strokeStyle = "#00AEEF";
+    ctx.setLineDash([6, 6]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  points.forEach((point, index) => {
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, point.projected ? 5 : 4, 0, Math.PI * 2);
+    ctx.fillStyle = point.projected ? "#8DF23F" : "#00AEEF";
+    ctx.fill();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.textAlign = "center";
+    ctx.fillText(formatDecimal(point.value, 1), point.x, point.y - 9);
+    ctx.fillStyle = "#9AA4B2";
+    ctx.fillText(index === points.length - 1 ? point.label : "", point.x, height - 10);
+  });
+}
+
 function navTargetFor(screen) {
   if (screen === "feedback") return "trainings";
   if (screen === "import") return "profile";
@@ -857,6 +1140,7 @@ function goTo(id, persist = true) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   requestAnimationFrame(() => {
     if (id === "evolution") renderEvolution();
+    if (id === "health") renderHealth();
   });
 }
 
@@ -868,7 +1152,7 @@ function startAppFlow() {
     return;
   }
 
-  goTo(state.plan ? "home" : "import");
+  goTo(activePlan() ? "home" : "import");
 }
 
 function setSetupStep(step) {
@@ -914,6 +1198,7 @@ function profileFromForm(form) {
     age: Number(form.elements.age.value || 0),
     sex: form.elements.sex.value,
     weight: parseDecimal(form.elements.weight.value),
+    targetWeight: parseDecimal(form.elements.targetWeight.value),
     height: parseDecimal(form.elements.height.value),
     level: form.elements.level.value,
     goal: form.elements.goal.value,
@@ -937,6 +1222,7 @@ function validateProfileStep(step) {
 
   if (step === 2) {
     if (!profile.weight) return "Informe o peso atual.";
+    if (!profile.targetWeight) return "Informe a meta de peso.";
     if (!profile.height) return "Informe a altura.";
     if (!profile.level) return "Selecione o nível atual.";
     if (!profile.goal) return "Selecione o objetivo principal.";
@@ -955,6 +1241,7 @@ function persistProfileFromForm() {
   const form = $("profile-form");
   state.profile = profileFromForm(form);
   state.profileComplete = isProfileComplete(state.profile);
+  if (state.profile.weight) upsertWeightLog(state.profile.weight, todayISO(), "perfil");
   saveState();
 }
 
@@ -1041,6 +1328,17 @@ function bindEvents() {
     event.target.value = "";
   });
 
+  $("week-select")?.addEventListener("change", (event) => {
+    setActivePlan(event.target.value);
+    renderAll();
+  });
+
+  $("history-week-filter")?.addEventListener("change", (event) => {
+    state.selectedHistoryPlanId = event.target.value || "all";
+    saveState();
+    renderEvolution();
+  });
+
   const dropZone = $("drop-zone");
   if (dropZone) {
     dropZone.addEventListener("click", (event) => {
@@ -1082,7 +1380,7 @@ function bindEvents() {
   const distanceInput = document.querySelector('[name="distance"]');
   if (distanceInput) bindDistanceMask(distanceInput);
 
-  document.querySelectorAll('#profile-form [name="weight"], #profile-form [name="height"]').forEach((input) => {
+  document.querySelectorAll('#profile-form [name="weight"], #profile-form [name="targetWeight"], #profile-form [name="height"], #weight-form [name="weight"]').forEach((input) => {
     bindDistanceMask(input);
   });
 
@@ -1124,7 +1422,7 @@ function bindEvents() {
     }
     persistProfileFromForm();
     renderAll();
-    goTo(state.plan ? "home" : "import");
+    goTo(activePlan() ? "home" : "import");
   });
 
   document.querySelectorAll('input[type="range"]').forEach((input) => {
@@ -1141,11 +1439,12 @@ function bindEvents() {
     }
 
     const workout = getWorkout(state.feedbackDraftDay || state.selectedDay);
+    const plan = activePlan();
     const entry = {
       id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : String(Date.now()),
       date: todayISO(),
       planKey: getPlanKey(),
-      week: state.plan?.week || "--",
+      week: plan?.week || "--",
       day: workout?.day || state.selectedDay || "--",
       workoutTitle: workout?.title || "",
       plannedDistance: Number(workout?.distance || 0),
@@ -1169,6 +1468,38 @@ function bindEvents() {
     alert("Feedback salvo com sucesso.");
   });
 
+  $("weight-form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const weight = parseDecimal(form.elements.weight.value);
+    const date = form.elements.date.value || todayISO();
+    if (!weight) {
+      alert("Informe o peso da semana.");
+      return;
+    }
+    upsertWeightLog(weight, date, "manual");
+    state.profile = { ...state.profile, weight };
+    saveState();
+    renderAll();
+    alert("Peso registrado com sucesso.");
+  });
+
+  document.querySelectorAll("[data-water-add]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const log = waterLog();
+      log.amount = Math.max(0, Number(log.amount || 0) + Number(button.dataset.waterAdd || 0));
+      saveState();
+      renderHealth();
+    });
+  });
+
+  $("reset-water-btn")?.addEventListener("click", () => {
+    const log = waterLog();
+    log.amount = 0;
+    saveState();
+    renderHealth();
+  });
+
   $("export-data-btn")?.addEventListener("click", () => {
     downloadJson(`corridag-dados-${todayISO()}.json`, {
       app: "CorridaG",
@@ -1189,6 +1520,7 @@ function bindEvents() {
 
   window.addEventListener("resize", () => {
     renderEvolution();
+    renderHealth();
   });
 }
 
