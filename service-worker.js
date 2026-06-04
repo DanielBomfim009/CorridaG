@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-start-flow-v1";
+const CACHE_NAME = "corridag-splash-logo-v1";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./manifest.json",
   "./sample-workout.json",
   "./corridag-semana-01.json",
+  "./assets/logo-splash.png",
   "./assets/logo-app.png",
   "./assets/logo-header.png",
   "./assets/logo-symbol.png",

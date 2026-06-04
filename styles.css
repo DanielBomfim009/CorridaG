@@ -192,27 +192,33 @@ p {
   position: relative;
   display: grid;
   place-items: center;
-  width: min(250px, 68vw);
-  height: min(250px, 68vw);
+  width: min(330px, 82vw);
+  height: min(250px, 62vw);
   margin: 0 auto auto;
 }
 
 .splash-orbit::before {
   position: absolute;
-  inset: 12px;
-  border: 1px solid rgba(141, 242, 63, 0.22);
+  inset: 18px 30px;
+  border: 1px solid rgba(141, 242, 63, 0.2);
   border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 42%, rgba(0, 174, 239, 0.22), transparent 52%),
+    radial-gradient(circle at 68% 48%, rgba(141, 242, 63, 0.14), transparent 55%);
   content: "";
+  filter: blur(0.4px);
   animation: pulse-ring 2.8s ease-in-out infinite;
 }
 
 .splash-logo {
+  position: relative;
   display: block;
-  width: min(220px, 60vw);
-  height: min(220px, 60vw);
-  border-radius: 38px;
+  width: min(315px, 78vw);
+  height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 24px 38px rgba(0, 0, 0, 0.42));
+  filter:
+    drop-shadow(0 22px 34px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 0 22px rgba(0, 174, 239, 0.2));
   animation: logo-float 3.4s ease-in-out infinite;
 }
 
@@ -244,6 +250,18 @@ p {
   max-width: none;
   margin-bottom: 4px;
   font-size: clamp(2.55rem, 15vw, 4.4rem);
+}
+
+.splash-wordmark {
+  color: var(--white);
+  font-style: italic;
+  font-weight: 1000;
+  letter-spacing: -0.08em;
+  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+}
+
+.splash-wordmark span {
+  color: var(--green);
 }
 
 .setup-card {
