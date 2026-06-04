@@ -9,6 +9,7 @@ const FEELINGS = {
 };
 
 const $ = (id) => document.getElementById(id);
+let setupStep = 1;
 
 function freshState() {
   return {
@@ -18,6 +19,7 @@ function freshState() {
     blockProgress: {},
     feedbacks: [],
     profile: {},
+    profileComplete: false,
     lastImport: null,
     activeScreen: "home"
   };
@@ -28,6 +30,7 @@ function normalizeState(raw = {}) {
   state.blockProgress = raw.blockProgress || {};
   state.feedbacks = Array.isArray(raw.feedbacks) ? raw.feedbacks : [];
   state.profile = raw.profile || {};
+  state.profileComplete = Boolean(raw.profileComplete);
   return state;
 }
 
@@ -87,6 +90,12 @@ function formatKm(value, digits = 1) {
 
 function formatWeight(value) {
   return value ? `${formatDecimal(value, 1)} kg` : "--";
+}
+
+function initialsFromName(name = "") {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "CG";
+  return parts.slice(0, 2).map((part) => part[0].toUpperCase()).join("");
 }
 
 function formatDate(iso) {
@@ -309,6 +318,23 @@ function profileFromPlan(plan) {
   };
 }
 
+function isProfileComplete(profile = state.profile) {
+  return Boolean(
+    profile.photo &&
+    profile.name &&
+    profile.age &&
+    profile.sex &&
+    profile.weight &&
+    profile.height &&
+    profile.level &&
+    profile.goal &&
+    profile.preferredTime &&
+    Array.isArray(profile.days) &&
+    profile.days.length &&
+    profile.restrictions
+  );
+}
+
 function getPlanKey() {
   return String(state.plan?.id || state.plan?.createdAt || state.plan?.week || "semana");
 }
@@ -393,9 +419,18 @@ function ensureSelectedDay() {
 function importPlan(data, fileName = "treino.json") {
   const plan = normalizePlan(data);
   const firstWorkout = plan.workouts.find((workout) => !isRestWorkout(workout)) || plan.workouts[0];
+  const importedProfile = profileFromPlan(plan);
 
   state.plan = plan;
-  state.profile = profileFromPlan(plan);
+  state.profile = state.profileComplete
+    ? {
+        ...importedProfile,
+        ...state.profile,
+        goal: state.profile.goal || importedProfile.goal,
+        weight: state.profile.weight || importedProfile.weight,
+        height: state.profile.height || importedProfile.height
+      }
+    : { ...importedProfile, ...state.profile };
   state.selectedDay = firstWorkout?.day || null;
   state.feedbackDraftDay = null;
   state.blockProgress = {};
@@ -622,6 +657,29 @@ function renderImport() {
   }
 }
 
+function renderProfileSetup() {
+  const form = $("profile-form");
+  if (!form) return;
+  const profile = state.profile || {};
+
+  form.elements.name.value = profile.name || "";
+  form.elements.age.value = profile.age || "";
+  form.elements.sex.value = profile.sex || "";
+  form.elements.weight.value = profile.weight ? String(profile.weight).replace(".", ",") : "";
+  form.elements.height.value = profile.height ? String(profile.height).replace(".", ",") : "";
+  form.elements.level.value = profile.level || "";
+  form.elements.goal.value = profile.goal || "";
+  form.elements.preferredTime.value = profile.preferredTime || "";
+  form.elements.restrictions.value = profile.restrictions || "Nenhuma";
+
+  form.querySelectorAll('[name="days"]').forEach((input) => {
+    input.checked = Array.isArray(profile.days) && profile.days.includes(input.value);
+  });
+
+  renderProfilePhotoPreview(profile.photo || "");
+  setSetupStep(setupStep);
+}
+
 function renderProfile() {
   const profile = state.profile || {};
   setText("profile-name", profile.name || "Atleta");
@@ -632,6 +690,21 @@ function renderProfile() {
   setText("profile-level", profile.level || "--");
   setText("profile-time", profile.preferredTime || "--");
   setText("profile-restrictions", profile.restrictions || "--");
+
+  const photo = $("profile-avatar-img");
+  const initials = $("profile-avatar-initials");
+  if (photo && initials) {
+    if (profile.photo) {
+      photo.src = profile.photo;
+      photo.classList.remove("hidden");
+      initials.classList.add("hidden");
+    } else {
+      photo.removeAttribute("src");
+      photo.classList.add("hidden");
+      initials.textContent = initialsFromName(profile.name);
+      initials.classList.remove("hidden");
+    }
+  }
 }
 
 function renderAll() {
@@ -641,6 +714,7 @@ function renderAll() {
   renderFeedbackScreen();
   renderEvolution();
   renderImport();
+  renderProfileSetup();
   renderProfile();
 }
 
@@ -756,7 +830,7 @@ function drawLineChart(id, labels, values) {
 function navTargetFor(screen) {
   if (screen === "feedback") return "trainings";
   if (screen === "import") return "profile";
-  if (screen === "onboarding") return "";
+  if (screen === "splash" || screen === "profile-setup") return "";
   return screen;
 }
 
@@ -773,6 +847,8 @@ function goTo(id, persist = true) {
     button.classList.toggle("active", button.dataset.goto === activeNav);
   });
 
+  document.body.dataset.screen = id;
+
   if (persist) {
     state.activeScreen = id;
     saveState();
@@ -782,6 +858,104 @@ function goTo(id, persist = true) {
   requestAnimationFrame(() => {
     if (id === "evolution") renderEvolution();
   });
+}
+
+function startAppFlow() {
+  if (!isProfileComplete()) {
+    setupStep = 1;
+    renderProfileSetup();
+    goTo("profile-setup");
+    return;
+  }
+
+  goTo(state.plan ? "home" : "import");
+}
+
+function setSetupStep(step) {
+  setupStep = Math.min(3, Math.max(1, step));
+  document.querySelectorAll(".profile-step").forEach((section) => {
+    section.classList.toggle("active", Number(section.dataset.step) === setupStep);
+  });
+  document.querySelectorAll(".setup-progress span").forEach((bar, index) => {
+    bar.classList.toggle("active", index < setupStep);
+  });
+  setText("setup-step-label", `${setupStep} de 3`);
+  $("prev-profile-step")?.classList.toggle("hidden", setupStep === 1);
+  $("next-profile-step")?.classList.toggle("hidden", setupStep === 3);
+  $("save-profile-btn")?.classList.toggle("hidden", setupStep !== 3);
+  setText("profile-form-message", "");
+}
+
+function renderProfilePhotoPreview(photo) {
+  const preview = $("profile-photo-preview");
+  const placeholder = $("profile-photo-placeholder");
+  if (!preview || !placeholder) return;
+
+  if (photo) {
+    preview.src = photo;
+    preview.classList.remove("hidden");
+    placeholder.classList.add("hidden");
+  } else {
+    preview.removeAttribute("src");
+    preview.classList.add("hidden");
+    placeholder.classList.remove("hidden");
+  }
+}
+
+function selectedDays(form) {
+  return [...form.querySelectorAll('[name="days"]:checked')].map((input) => input.value);
+}
+
+function profileFromForm(form) {
+  return {
+    ...state.profile,
+    photo: state.profile.photo || "",
+    name: form.elements.name.value.trim(),
+    age: Number(form.elements.age.value || 0),
+    sex: form.elements.sex.value,
+    weight: parseDecimal(form.elements.weight.value),
+    height: parseDecimal(form.elements.height.value),
+    level: form.elements.level.value,
+    goal: form.elements.goal.value,
+    preferredTime: form.elements.preferredTime.value,
+    days: selectedDays(form),
+    restrictions: form.elements.restrictions.value || "Nenhuma"
+  };
+}
+
+function validateProfileStep(step) {
+  const form = $("profile-form");
+  if (!form) return "Formulário não encontrado.";
+  const profile = profileFromForm(form);
+
+  if (step === 1) {
+    if (!profile.photo) return "Adicione uma foto para continuar.";
+    if (!profile.name) return "Informe seu nome.";
+    if (!profile.age || profile.age < 12) return "Informe uma idade válida.";
+    if (!profile.sex) return "Selecione o sexo.";
+  }
+
+  if (step === 2) {
+    if (!profile.weight) return "Informe o peso atual.";
+    if (!profile.height) return "Informe a altura.";
+    if (!profile.level) return "Selecione o nível atual.";
+    if (!profile.goal) return "Selecione o objetivo principal.";
+  }
+
+  if (step === 3) {
+    if (!profile.preferredTime) return "Selecione o horário preferido.";
+    if (!profile.days.length) return "Selecione pelo menos um dia disponível.";
+    if (!profile.restrictions) return "Selecione uma restrição.";
+  }
+
+  return "";
+}
+
+function persistProfileFromForm() {
+  const form = $("profile-form");
+  state.profile = profileFromForm(form);
+  state.profileComplete = isProfileComplete(state.profile);
+  saveState();
 }
 
 function setChoice(group, value) {
@@ -860,7 +1034,7 @@ function bindEvents() {
     button.addEventListener("click", () => goTo(button.dataset.goto));
   });
 
-  $("load-sample-btn")?.addEventListener("click", loadSamplePlan);
+  $("start-app-btn")?.addEventListener("click", startAppFlow);
   $("import-file-btn")?.addEventListener("click", () => $("import-file")?.click());
   $("import-file")?.addEventListener("change", (event) => {
     handleFile(event.target.files[0]);
@@ -907,6 +1081,51 @@ function bindEvents() {
 
   const distanceInput = document.querySelector('[name="distance"]');
   if (distanceInput) bindDistanceMask(distanceInput);
+
+  document.querySelectorAll('#profile-form [name="weight"], #profile-form [name="height"]').forEach((input) => {
+    bindDistanceMask(input);
+  });
+
+  $("photo-picker-btn")?.addEventListener("click", () => $("profile-photo-input")?.click());
+  $("profile-photo-input")?.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      state.profile = { ...state.profile, photo: String(reader.result || "") };
+      renderProfilePhotoPreview(state.profile.photo);
+      saveState();
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  });
+
+  $("next-profile-step")?.addEventListener("click", () => {
+    const message = validateProfileStep(setupStep);
+    if (message) {
+      setText("profile-form-message", message);
+      return;
+    }
+    persistProfileFromForm();
+    setSetupStep(setupStep + 1);
+  });
+
+  $("prev-profile-step")?.addEventListener("click", () => {
+    persistProfileFromForm();
+    setSetupStep(setupStep - 1);
+  });
+
+  $("profile-form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const message = validateProfileStep(3);
+    if (message) {
+      setText("profile-form-message", message);
+      return;
+    }
+    persistProfileFromForm();
+    renderAll();
+    goTo(state.plan ? "home" : "import");
+  });
 
   document.querySelectorAll('input[type="range"]').forEach((input) => {
     input.addEventListener("input", () => setText(`${input.name}-value`, input.value));
@@ -965,7 +1184,7 @@ function bindEvents() {
     LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
     state = freshState();
     renderAll();
-    goTo("onboarding");
+    goTo("splash");
   });
 
   window.addEventListener("resize", () => {
@@ -976,7 +1195,7 @@ function bindEvents() {
 function init() {
   bindEvents();
   renderAll();
-  goTo(state.plan ? state.activeScreen || "home" : "onboarding", false);
+  goTo("splash", false);
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js").catch(() => {});

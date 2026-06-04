@@ -153,6 +153,8 @@ p {
   }
 }
 
+.splash-card,
+.setup-card,
 .welcome-card,
 .hero-card,
 .today-card,
@@ -173,26 +175,172 @@ p {
   box-shadow: var(--shadow);
 }
 
-.welcome-card {
+.splash-card {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   min-height: calc(100vh - 182px);
-  padding: 20px;
+  padding: 24px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 54% 20%, rgba(30, 144, 255, 0.2), transparent 170px),
+    radial-gradient(circle at 50% 18%, rgba(30, 144, 255, 0.28), transparent 170px),
+    radial-gradient(circle at 72% 34%, rgba(141, 242, 63, 0.16), transparent 150px),
     linear-gradient(180deg, rgba(17, 28, 52, 0.96), var(--card));
 }
 
-.welcome-logo {
-  display: block;
-  width: min(230px, 62vw);
-  height: min(230px, 62vw);
+.splash-orbit {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(250px, 68vw);
+  height: min(250px, 68vw);
   margin: 0 auto auto;
+}
+
+.splash-orbit::before {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(141, 242, 63, 0.22);
+  border-radius: 50%;
+  content: "";
+  animation: pulse-ring 2.8s ease-in-out infinite;
+}
+
+.splash-logo {
+  display: block;
+  width: min(220px, 60vw);
+  height: min(220px, 60vw);
   border-radius: 38px;
   object-fit: contain;
-  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.38));
+  filter: drop-shadow(0 24px 38px rgba(0, 0, 0, 0.42));
+  animation: logo-float 3.4s ease-in-out infinite;
+}
+
+@keyframes logo-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+.splash-card h1 {
+  max-width: none;
+  margin-bottom: 4px;
+  font-size: clamp(2.55rem, 15vw, 4.4rem);
+}
+
+.setup-card {
+  padding: 18px;
+}
+
+.setup-progress {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.setup-progress span {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.setup-progress span.active {
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}
+
+.profile-form {
+  display: grid;
+  gap: var(--gap);
+}
+
+.profile-step {
+  display: none;
+  gap: var(--gap);
+}
+
+.profile-step.active {
+  display: grid;
+}
+
+.photo-picker {
+  display: grid;
+  place-items: center;
+  width: 122px;
+  height: 122px;
+  margin: 0 auto 4px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 36px;
+  color: var(--green);
+  background:
+    radial-gradient(circle at 50% 25%, rgba(30, 144, 255, 0.18), transparent 70px),
+    rgba(255, 255, 255, 0.05);
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.photo-picker img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.days-field {
+  display: grid;
+  gap: 10px;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.days-grid label {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+}
+
+.days-grid input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.days-grid label:has(input:checked) {
+  border-color: var(--green);
+  color: var(--bg);
+  background: var(--green);
+}
+
+.setup-actions {
+  align-items: center;
 }
 
 .eyebrow {
@@ -328,6 +476,10 @@ p {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: var(--gap);
+}
+
+.full-action {
+  margin-top: 10px;
 }
 
 .primary-action,
@@ -712,12 +864,35 @@ canvas {
 .avatar {
   display: grid;
   place-items: center;
+  overflow: hidden;
   width: 62px;
   height: 62px;
   border-radius: 50%;
   color: var(--bg);
   background: linear-gradient(135deg, var(--blue), var(--green));
   font-weight: 1000;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar span {
+  color: var(--bg);
+}
+
+body[data-screen="splash"] .topbar,
+body[data-screen="splash"] .bottom-nav,
+body[data-screen="profile-setup"] .topbar,
+body[data-screen="profile-setup"] .bottom-nav {
+  display: none;
+}
+
+body[data-screen="splash"] .app-shell,
+body[data-screen="profile-setup"] .app-shell {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .profile-card strong {

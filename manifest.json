@@ -1,7 +1,7 @@
 {
   "name": "CorridaG",
   "short_name": "CorridaG",
-  "description": "Acompanhamento cardio para treinos importados, feedbacks, evolução, água, jejum e peso.",
+  "description": "Acompanhamento cardio para treinos importados, perfil do corredor, feedbacks e evolução.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0B1424",

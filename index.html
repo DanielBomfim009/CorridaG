@@ -22,16 +22,142 @@
       </header>
 
       <main class="screen-stack">
-        <section id="onboarding" class="screen active" aria-labelledby="onboarding-title">
-          <article class="welcome-card">
-            <img src="assets/logo-app.png" alt="CorridaG" class="welcome-logo" />
-            <p class="eyebrow">Seu treino. Seu ritmo. Seu resultado.</p>
-            <h1 id="onboarding-title">Cardio sob controle.</h1>
-            <p class="short-copy">Importe, execute, registre e evolua.</p>
-            <div class="action-row">
-              <button class="primary-action" data-goto="import">Importar treino</button>
-              <button class="secondary-action" id="load-sample-btn">Carregar exemplo</button>
+        <section id="splash" class="screen active" aria-labelledby="splash-title">
+          <article class="splash-card">
+            <div class="splash-orbit">
+              <img src="assets/logo-app.png" alt="CorridaG" class="splash-logo" />
             </div>
+            <p class="eyebrow">Personal Cardio Inteligente</p>
+            <h1 id="splash-title">CorridaG</h1>
+            <p class="short-copy">Seu treino. Seu ritmo. Seu resultado.</p>
+            <button class="primary-action" id="start-app-btn">Iniciar treino</button>
+          </article>
+        </section>
+
+        <section id="profile-setup" class="screen" aria-labelledby="profile-setup-title">
+          <article class="setup-card">
+            <div class="screen-title">
+              <div>
+                <p class="eyebrow">Configuração inicial</p>
+                <h2 id="profile-setup-title">Perfil do corredor</h2>
+              </div>
+              <span id="setup-step-label" class="pill">1 de 3</span>
+            </div>
+
+            <div class="setup-progress" aria-hidden="true">
+              <span class="active"></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <form id="profile-form" class="profile-form" novalidate>
+              <section class="profile-step active" data-step="1">
+                <button class="photo-picker" id="photo-picker-btn" type="button">
+                  <img id="profile-photo-preview" alt="" class="hidden" />
+                  <span id="profile-photo-placeholder">Adicionar foto</span>
+                </button>
+                <input id="profile-photo-input" type="file" accept="image/*" hidden />
+
+                <label>
+                  Nome
+                  <input name="name" type="text" autocomplete="name" placeholder="Seu nome" required />
+                </label>
+                <div class="field-row">
+                  <label>
+                    Idade
+                    <input name="age" type="number" min="12" max="100" inputmode="numeric" placeholder="22" required />
+                  </label>
+                  <label>
+                    Sexo
+                    <select name="sex" required>
+                      <option value="">Selecione</option>
+                      <option>Masculino</option>
+                      <option>Feminino</option>
+                      <option>Prefiro não informar</option>
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <section class="profile-step" data-step="2">
+                <div class="field-row">
+                  <label>
+                    Peso atual
+                    <input name="weight" type="text" inputmode="decimal" placeholder="82,5" required />
+                  </label>
+                  <label>
+                    Altura
+                    <input name="height" type="text" inputmode="decimal" placeholder="1,80" required />
+                  </label>
+                </div>
+                <label>
+                  Nível atual
+                  <select name="level" required>
+                    <option value="">Selecione</option>
+                    <option>Nunca treinou</option>
+                    <option>Retorno</option>
+                    <option>Pouco ativo</option>
+                    <option>Intermediário</option>
+                    <option>Avançado</option>
+                  </select>
+                </label>
+                <label>
+                  Objetivo principal
+                  <select name="goal" required>
+                    <option value="">Selecione</option>
+                    <option>Emagrecimento</option>
+                    <option>Saúde</option>
+                    <option>Condicionamento</option>
+                    <option>Correr 5 km</option>
+                    <option>Correr 10 km</option>
+                  </select>
+                </label>
+              </section>
+
+              <section class="profile-step" data-step="3">
+                <label>
+                  Horário preferido
+                  <select name="preferredTime" required>
+                    <option value="">Selecione</option>
+                    <option>Manhã</option>
+                    <option>Tarde</option>
+                    <option>Noite</option>
+                    <option>Após 18h</option>
+                  </select>
+                </label>
+                <fieldset class="days-field">
+                  <legend>Dias disponíveis</legend>
+                  <div class="days-grid">
+                    <label><input type="checkbox" name="days" value="SEG" />SEG</label>
+                    <label><input type="checkbox" name="days" value="TER" />TER</label>
+                    <label><input type="checkbox" name="days" value="QUA" />QUA</label>
+                    <label><input type="checkbox" name="days" value="QUI" />QUI</label>
+                    <label><input type="checkbox" name="days" value="SEX" />SEX</label>
+                    <label><input type="checkbox" name="days" value="SAB" />SAB</label>
+                    <label><input type="checkbox" name="days" value="DOM" />DOM</label>
+                  </div>
+                </fieldset>
+                <label>
+                  Restrições
+                  <select name="restrictions" required>
+                    <option>Nenhuma</option>
+                    <option>Joelho</option>
+                    <option>Canela</option>
+                    <option>Tornozelo</option>
+                    <option>Coluna</option>
+                    <option>Pressão alta</option>
+                    <option>Diabetes</option>
+                  </select>
+                </label>
+              </section>
+
+              <p id="profile-form-message" class="form-message" aria-live="polite"></p>
+              <div class="action-row setup-actions">
+                <button class="secondary-action hidden" id="prev-profile-step" type="button">Voltar</button>
+                <button class="primary-action" id="next-profile-step" type="button">Continuar</button>
+                <button class="primary-action hidden" id="save-profile-btn" type="submit">Salvar perfil</button>
+              </div>
+            </form>
           </article>
         </section>
 
@@ -268,11 +394,14 @@
               <p class="eyebrow">Dados importados</p>
               <h2 id="profile-title">Perfil</h2>
             </div>
-            <button class="ghost-button compact" data-goto="import">Importar</button>
+            <button class="ghost-button compact" data-goto="profile-setup">Editar</button>
           </div>
 
           <article class="profile-card">
-            <div class="avatar">CG</div>
+            <div class="avatar">
+              <img id="profile-avatar-img" alt="" class="hidden" />
+              <span id="profile-avatar-initials">CG</span>
+            </div>
             <div>
               <strong id="profile-name">Atleta</strong>
               <span id="profile-goal">Importe um treino</span>
@@ -294,9 +423,10 @@
           </article>
 
           <div class="action-row">
+            <button class="primary-action" data-goto="import">Importar treino</button>
             <button id="export-data-btn" class="secondary-action">Exportar dados</button>
-            <button id="clear-data-btn" class="secondary-action">Limpar dados</button>
           </div>
+          <button id="clear-data-btn" class="secondary-action full-action">Limpar dados</button>
         </section>
       </main>
 
