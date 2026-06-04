@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-splash-logo-v1";
+const CACHE_NAME = "corridag-input-zoom-v1";
 const ASSETS = [
   "./",
   "./index.html",
