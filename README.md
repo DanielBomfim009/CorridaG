@@ -1,43 +1,38 @@
 # CorridaG
 
-PWA mobile-first para acompanhamento cardio. Esta versão não gera treinos automaticamente: ela importa um treino semanal em JSON, organiza os blocos, registra feedbacks e acompanha evolução, água, jejum e peso no próprio aparelho.
+PWA mobile-first para acompanhamento de treinos cardio importados. Esta versão não gera treinos automaticamente: o app importa um treino semanal em JSON, organiza os blocos, registra feedback pós-treino e mostra a evolução do corredor.
 
-## O que o app faz
+## Fluxo principal
 
-- Importa treino semanal em JSON.
-- Permite navegar entre Início, Treinos, Evolução, Saúde, Importação e Perfil.
-- Marca blocos do treino como concluídos.
-- Registra feedback pós-treino com distância, tempo, pace, cansaço e dores.
-- Acompanha água, jejum e peso com salvamento local.
-- Exporta backup JSON com os dados do aparelho.
-- Funciona como PWA com `manifest.json` e `service-worker.js`.
+1. Importar treino em JSON.
+2. Abrir a aba `Treinos`.
+3. Marcar cada bloco como concluído.
+4. Tocar em `Finalizar treino`.
+5. Registrar distância realizada, tempo total, pace médio, sensação, cansaço, dores e observações.
+6. Acompanhar os registros na aba `Evolução`.
 
-## O que o app não faz
+## Abas
 
-- Não cria plano de treino sozinho.
-- Não usa login, servidor, Firebase, Supabase ou API externa.
-- Não altera o treino automaticamente após o feedback.
+- `Início`
+- `Treinos`
+- `Evolução`
+- `Perfil`
 
-## Como testar
+Feedback e importação são telas auxiliares, abertas a partir do treino, do perfil ou do botão rápido.
 
-1. Abra `index.html` em um servidor local ou pelo GitHub Pages.
-2. Toque em `Importar treino`.
-3. Selecione `sample-workout.json`, `corridag-semana-01.json` ou toque em `Carregar exemplo`.
-4. Navegue pelas abas e registre um feedback de treino.
+## JSON oficial
 
-## Estruturas de JSON aceitas
-
-O app aceita o formato interno completo:
+O arquivo oficial precisa conter:
 
 - `app`: deve ser `CorridaG`.
+- `version`: versão do formato.
 - `week`: nome da semana.
 - `athlete`: dados básicos do atleta.
-- `workouts`: lista de treinos com dia, título, distância e blocos.
+- `workouts`: lista de treinos.
+- `blocks`: blocos de cada treino.
 
-Também aceita o formato de personal com:
+Veja `sample-workout.json` e `corridag-semana-01.json`.
 
-- `week`: nome da semana.
-- `userProfile`: dados do corredor.
-- `days`: lista de treinos com `targetDistance` e blocos usando `startKm`, `endKm` e `activity`.
+## PWA
 
-Veja `sample-workout.json` e `corridag-semana-01.json` como referências.
+O projeto inclui `manifest.json`, `service-worker.js`, `.nojekyll` e ícones em SVG para publicação no GitHub Pages.

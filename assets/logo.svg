@@ -21,7 +21,6 @@
     </filter>
   </defs>
 
-  <rect width="960" height="300" rx="54" fill="#0B1424"/>
   <path d="M78 92C113 42 175 18 256 23C216 41 182 65 157 97H257L238 137H75C60 137 54 120 63 107C67 102 72 96 78 92Z" fill="url(#blue)" filter="url(#softGlow)"/>
   <path d="M229 78H360L339 123H267C250 123 235 129 225 141C211 158 214 179 232 191C246 200 263 203 282 203H309L295 238H245C199 238 169 218 162 185C154 148 171 109 205 88C213 83 221 80 229 78Z" fill="url(#green)" filter="url(#softGlow)"/>
   <path d="M117 237H74C39 237 20 216 27 184C36 143 71 121 121 121H177L160 160H112C91 160 79 168 75 184C72 198 81 204 99 204H132L117 237Z" fill="url(#blue)"/>
@@ -34,5 +33,5 @@
 
   <text x="420" y="162" fill="#FFFFFF" font-family="Arial Black, Arial, sans-serif" font-size="82" font-weight="900" font-style="italic" letter-spacing="-6">Corrida</text>
   <text x="736" y="162" fill="url(#textGreen)" font-family="Arial Black, Arial, sans-serif" font-size="90" font-weight="900" font-style="italic" letter-spacing="-5">G</text>
-  <text x="424" y="214" fill="#C8D0DC" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="26" font-weight="700" letter-spacing=".5">Personal Cardio Inteligente</text>
+  <text x="424" y="214" fill="#9AA4B2" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="26" font-weight="700" letter-spacing=".5">Personal Cardio Inteligente</text>
 </svg>

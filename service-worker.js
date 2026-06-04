@@ -1,4 +1,4 @@
-const CACHE_NAME = "corridag-tracking-v3";
+const CACHE_NAME = "corridag-quality-v1";
 const ASSETS = [
   "./",
   "./index.html",
