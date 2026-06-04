@@ -164,8 +164,15 @@
         <section id="home" class="screen" aria-labelledby="home-title">
           <article class="hero-card">
             <p class="eyebrow" id="home-greeting">Olá, atleta</p>
-            <h1 id="home-title">Resumo</h1>
-            <p id="coach-note">Importe o treino da semana para começar o acompanhamento.</p>
+            <h1 id="home-title">Painel cardio</h1>
+            <p id="coach-note">Importe a semana, registre os treinos e acompanhe sua evolução.</p>
+          </article>
+
+          <article class="command-card">
+            <span class="label" id="next-action-label">Próxima ação</span>
+            <strong id="next-action-title">Importar semana</strong>
+            <p id="next-action-detail">Comece importando o arquivo JSON do treino.</p>
+            <button class="primary-action" id="next-action-btn" type="button">Começar</button>
           </article>
 
           <article class="today-card">
@@ -176,6 +183,21 @@
             </div>
             <div class="progress-ring" id="week-ring">
               <b id="week-percent">0%</b>
+            </div>
+          </article>
+
+          <article class="comparison-card">
+            <div>
+              <span>Planejado</span>
+              <strong id="home-planned-km">0 km</strong>
+            </div>
+            <div>
+              <span>Realizado</span>
+              <strong id="home-realized-km">0 km</strong>
+            </div>
+            <div>
+              <span>Aderência</span>
+              <strong id="home-adherence">0%</strong>
             </div>
           </article>
 
@@ -209,6 +231,14 @@
             <button class="primary-action" data-goto="trainings">Ver treino</button>
             <button class="secondary-action" data-goto="evolution">Evolução</button>
           </div>
+
+          <article class="feed-card">
+            <div class="chart-head">
+              <strong>Histórico privado</strong>
+              <span>Últimos treinos</span>
+            </div>
+            <div id="home-feed" class="mini-feed"></div>
+          </article>
         </section>
 
         <section id="trainings" class="screen" aria-labelledby="training-title">
@@ -355,6 +385,21 @@
             </article>
           </div>
 
+          <article class="comparison-card evolution-compliance">
+            <div>
+              <span>Meta do plano</span>
+              <strong id="evolution-planned-km">0 km</strong>
+            </div>
+            <div>
+              <span>Registrado</span>
+              <strong id="evolution-realized-km">0 km</strong>
+            </div>
+            <div>
+              <span>Aderência</span>
+              <strong id="evolution-adherence">0%</strong>
+            </div>
+          </article>
+
           <article class="chart-card">
             <div class="chart-head">
               <strong>Distância por treino</strong>
@@ -465,8 +510,32 @@
             <input type="file" id="import-file" accept="application/json,.json" hidden />
             <div class="upload-mark">JSON</div>
             <h3>Importar treino</h3>
-            <p>Selecione o arquivo JSON da semana.</p>
+            <p>Selecione o arquivo e confira antes de salvar.</p>
             <button class="primary-action" id="import-file-btn">Selecionar arquivo</button>
+          </article>
+
+          <article class="import-preview hidden" id="import-preview">
+            <span class="label">Prévia do arquivo</span>
+            <strong id="import-preview-title">Semana</strong>
+            <div class="preview-grid">
+              <div>
+                <span>Objetivo</span>
+                <b id="import-preview-goal">--</b>
+              </div>
+              <div>
+                <span>Treinos</span>
+                <b id="import-preview-workouts">0</b>
+              </div>
+              <div>
+                <span>Meta</span>
+                <b id="import-preview-distance">0 km</b>
+              </div>
+            </div>
+            <p id="import-preview-note">Confira os dados antes de ativar a semana.</p>
+            <div class="action-row">
+              <button class="primary-action" id="confirm-import-btn" type="button">Ativar semana</button>
+              <button class="secondary-action" id="cancel-import-btn" type="button">Cancelar</button>
+            </div>
           </article>
 
           <article class="status-card">

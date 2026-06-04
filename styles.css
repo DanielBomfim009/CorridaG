@@ -157,9 +157,12 @@ p {
 .setup-card,
 .welcome-card,
 .hero-card,
+.command-card,
 .today-card,
+.comparison-card,
 .metric-card,
 .insight-card,
+.feed-card,
 .workout-panel,
 .block-card,
 .feedback-summary,
@@ -168,6 +171,7 @@ p {
 .profile-list,
 .status-card,
 .drop-zone,
+.import-preview,
 .water-card,
 .pain-grid {
   border: 1px solid var(--line);
@@ -404,6 +408,81 @@ p {
   font-size: 2.8rem;
 }
 
+.command-card {
+  position: relative;
+  margin-top: var(--gap);
+  padding: 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(0, 174, 239, 0.22), rgba(141, 242, 63, 0.1)),
+    var(--card);
+}
+
+.command-card::after {
+  position: absolute;
+  right: -46px;
+  bottom: -54px;
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(141, 242, 63, 0.18), transparent 68%);
+  content: "";
+  pointer-events: none;
+}
+
+.command-card strong {
+  position: relative;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--white);
+  font-size: 1.55rem;
+  letter-spacing: -0.05em;
+}
+
+.command-card p {
+  position: relative;
+  max-width: 310px;
+  margin-bottom: 16px;
+}
+
+.command-card .primary-action {
+  position: relative;
+}
+
+.comparison-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: var(--gap);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.comparison-card div {
+  min-height: 82px;
+  padding: 14px 10px;
+  background: rgba(17, 28, 52, 0.94);
+}
+
+.comparison-card span,
+.preview-grid span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.comparison-card strong,
+.preview-grid b {
+  color: var(--white);
+  font-size: 1.06rem;
+  line-height: 1.1;
+}
+
+.evolution-compliance {
+  margin-bottom: var(--gap);
+}
+
 .label {
   display: block;
   margin-bottom: 7px;
@@ -500,6 +579,49 @@ p {
 .insight-card p,
 .status-card p {
   margin-bottom: 0;
+}
+
+.feed-card {
+  margin-top: var(--gap);
+  padding: 16px;
+}
+
+.mini-feed {
+  display: grid;
+  gap: 9px;
+}
+
+.feed-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.feed-item strong {
+  display: block;
+  color: var(--white);
+  font-size: 0.96rem;
+}
+
+.feed-item span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.74rem;
+}
+
+.feed-item b {
+  color: var(--green);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.feed-item.empty {
+  justify-content: flex-start;
 }
 
 .action-row {
@@ -1035,6 +1157,38 @@ body[data-screen="splash"] .app-shell {
   background: rgba(141, 242, 63, 0.1);
 }
 
+.import-preview {
+  margin-top: var(--gap);
+  padding: 16px;
+}
+
+.import-preview > strong {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--white);
+  font-size: 1.3rem;
+  letter-spacing: -0.04em;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.preview-grid div {
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.import-preview p {
+  margin-bottom: 0;
+}
+
 .upload-mark {
   display: grid;
   place-items: center;
@@ -1128,7 +1282,9 @@ body[data-screen="splash"] .app-shell {
 @media (max-width: 360px) {
   .action-row,
   .field-row,
-  .metric-grid {
+  .metric-grid,
+  .comparison-card,
+  .preview-grid {
     grid-template-columns: 1fr;
   }
 

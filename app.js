@@ -69,6 +69,7 @@ function loadState() {
 
 let state = loadState();
 const choices = { feeling: "" };
+let pendingImport = null;
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -481,6 +482,128 @@ function latestFeedback() {
   return state.feedbacks[state.feedbacks.length - 1] || null;
 }
 
+function planDistance(plan = activePlan()) {
+  if (!plan || !Array.isArray(plan.workouts)) return 0;
+  return plan.workouts.reduce((sum, workout) => (
+    isRestWorkout(workout) ? sum : sum + Number(workout.distance || 0)
+  ), 0);
+}
+
+function plannedCount(plan = activePlan()) {
+  if (!plan || !Array.isArray(plan.workouts)) return 0;
+  return plan.workouts.filter((workout) => !isRestWorkout(workout)).length;
+}
+
+function feedbackDistance(feedbacks = []) {
+  return feedbacks.reduce((sum, item) => sum + Number(item.distance || 0), 0);
+}
+
+function activePlanFeedbacks(plan = activePlan()) {
+  if (!plan) return [];
+  const key = String(plan.id || plan.createdAt || plan.week || "semana");
+  return state.feedbacks.filter((feedback) => feedback.planKey === key);
+}
+
+function plannedDistanceForFilter(planId = state.selectedHistoryPlanId) {
+  if (!planId || planId === "all") {
+    return state.plans.reduce((sum, plan) => sum + planDistance(plan), 0);
+  }
+
+  return planDistance(state.plans.find((plan) => plan.id === planId));
+}
+
+function adherencePercent(actual, planned) {
+  if (!planned) return 0;
+  return Math.round(Math.min(150, Math.max(0, (Number(actual || 0) / planned) * 100)));
+}
+
+function currentNextAction() {
+  const plan = activePlan();
+  if (!state.profileComplete) {
+    return {
+      type: "profile",
+      title: "Completar perfil",
+      detail: "Finalize seus dados para organizar o acompanhamento.",
+      button: "Preencher perfil"
+    };
+  }
+
+  if (!plan) {
+    return {
+      type: "import",
+      title: "Importar semana",
+      detail: "Ative o arquivo JSON para começar o acompanhamento.",
+      button: "Importar treino"
+    };
+  }
+
+  const workouts = plannedWorkouts();
+  const unregistered = workouts.find((workout) => !hasFeedback(workout.day));
+  if (!unregistered) {
+    return {
+      type: "evolution",
+      title: "Semana registrada",
+      detail: "Veja a aderência, distância e histórico da semana.",
+      button: "Ver evolução"
+    };
+  }
+
+  const progress = getWorkoutProgress(unregistered);
+  if (progress.total && progress.done === progress.total) {
+    return {
+      type: "feedback",
+      workout: unregistered,
+      title: "Registrar resultado",
+      detail: `${unregistered.day} está marcado como concluído. Salve o feedback real.`,
+      button: "Registrar feedback"
+    };
+  }
+
+  return {
+    type: "training",
+    workout: unregistered,
+    title: `${unregistered.day} - ${unregistered.title}`,
+    detail: `${formatKm(unregistered.distance, 1)} planejados para este treino.`,
+    button: "Abrir treino"
+  };
+}
+
+function runNextAction() {
+  const action = currentNextAction();
+
+  if (action.type === "profile") {
+    setupStep = 1;
+    renderProfileSetup();
+    goTo("profile-setup");
+    return;
+  }
+
+  if (action.type === "import") {
+    goTo("import");
+    return;
+  }
+
+  if (action.type === "evolution") {
+    goTo("evolution");
+    return;
+  }
+
+  if (action.workout) {
+    state.selectedDay = action.workout.day;
+    saveState();
+  }
+
+  if (action.type === "feedback") {
+    state.feedbackDraftDay = action.workout.day;
+    prepareFeedbackForm();
+    renderFeedbackScreen();
+    goTo("feedback");
+    return;
+  }
+
+  goTo("trainings");
+}
+
 function sortedWeightLogs() {
   const logs = [...state.weightLogs]
     .filter((item) => item.weight && item.date)
@@ -633,25 +756,35 @@ function renderHome() {
   const profile = state.profile || {};
   const plan = activePlan();
   const firstName = String(profile.name || "atleta").split(" ")[0];
-  const planned = plannedWorkouts().length;
-  const done = completedWorkouts().length;
-  const percent = planned ? Math.round((done / planned) * 100) : 0;
-  const next = nextWorkout();
+  const planned = plannedCount(plan);
+  const planFeedbacks = activePlanFeedbacks(plan);
+  const registered = planFeedbacks.length;
+  const percent = planned ? Math.round((registered / planned) * 100) : 0;
+  const action = currentNextAction();
+  const next = action.workout || nextWorkout();
   const feedback = latestFeedback();
-  const totalDistance = state.feedbacks.reduce((sum, item) => sum + Number(item.distance || 0), 0);
-  const paces = state.feedbacks.map((item) => timeToSeconds(item.pace)).filter(Boolean);
+  const plannedKm = planDistance(plan);
+  const realizedKm = feedbackDistance(planFeedbacks);
+  const adherence = adherencePercent(realizedKm, plannedKm);
+  const paces = planFeedbacks.map((item) => timeToSeconds(item.pace)).filter(Boolean);
   const averagePace = paces.length ? paces.reduce((sum, pace) => sum + pace, 0) / paces.length : 0;
 
   setText("home-greeting", `Olá, ${firstName}`);
   setText("coach-note", plan?.coachNote || "Importe o treino da semana para começar o acompanhamento.");
+  setText("next-action-title", action.title);
+  setText("next-action-detail", action.detail);
+  setText("next-action-btn", action.button);
   setText("today-title", next ? `${next.day} - ${next.title}` : "Nenhum treino importado");
   setText("today-detail", next ? `${formatKm(next.distance, 1)} planejados` : "Importe um arquivo JSON para visualizar os blocos.");
   setText("week-percent", `${percent}%`);
-  setText("week-progress", `${done} de ${planned}`);
+  setText("week-progress", `${registered} de ${planned}`);
   setText("week-label", plan?.week || "Sem treino importado");
-  setText("total-distance", formatKm(totalDistance, 2));
+  setText("home-planned-km", formatKm(plannedKm, 1));
+  setText("home-realized-km", formatKm(realizedKm, 2));
+  setText("home-adherence", `${adherence}%`);
+  setText("total-distance", formatKm(realizedKm, 2));
   setText("avg-pace", averagePace ? `${formatPace(averagePace)}/km` : "--");
-  setText("next-workout", next?.day || "--");
+  setText("next-workout", action.workout?.day || action.button);
 
   const ring = $("week-ring");
   if (ring) ring.style.setProperty("--p", `${percent * 3.6}deg`);
@@ -663,6 +796,34 @@ function renderHome() {
     setText("last-feedback-title", "Nenhum feedback salvo");
     setText("last-feedback-detail", "Finalize um treino para acompanhar sua evolução.");
   }
+
+  renderHomeFeed();
+}
+
+function renderHomeFeed() {
+  const container = $("home-feed");
+  if (!container) return;
+
+  const items = [...state.feedbacks].reverse().slice(0, 3);
+  if (!items.length) {
+    container.innerHTML = `
+      <article class="feed-item empty">
+        <strong>Nenhum treino registrado</strong>
+        <span>Seu histórico privado aparecerá aqui.</span>
+      </article>
+    `;
+    return;
+  }
+
+  container.innerHTML = items.map((item) => `
+    <article class="feed-item">
+      <div>
+        <strong>${item.day} · ${formatKm(item.distance, 2)}</strong>
+        <span>${item.week || "Semana"} · ${item.pace}/km · ${item.feelingLabel || "Registrado"}</span>
+      </div>
+      <b>${formatDate(item.date)}</b>
+    </article>
+  `).join("");
 }
 
 function renderDayTabs() {
@@ -789,6 +950,8 @@ function renderFeedbackScreen() {
 function renderEvolution() {
   const feedbacks = feedbacksForPlan();
   const totalDistance = feedbacks.reduce((sum, item) => sum + Number(item.distance || 0), 0);
+  const plannedKm = plannedDistanceForFilter();
+  const adherence = adherencePercent(totalDistance, plannedKm);
   const paces = feedbacks.map((item) => timeToSeconds(item.pace)).filter(Boolean);
   const averagePace = paces.length ? paces.reduce((sum, pace) => sum + pace, 0) / paces.length : 0;
   const bestDistance = feedbacks.reduce((best, item) => Math.max(best, Number(item.distance || 0)), 0);
@@ -798,6 +961,9 @@ function renderEvolution() {
   setText("done-workouts", String(feedbacks.length));
   setText("pace-average", averagePace ? `${formatPace(averagePace)}/km` : "--");
   setText("best-distance", bestDistance ? formatKm(bestDistance, 2) : "--");
+  setText("evolution-planned-km", formatKm(plannedKm, 1));
+  setText("evolution-realized-km", formatKm(totalDistance, 2));
+  setText("evolution-adherence", `${adherence}%`);
 
   const labels = feedbacks.map((item) => item.day || formatDate(item.date));
   drawBarChart("distance-chart", labels, feedbacks.map((item) => Number(item.distance || 0)));
@@ -841,6 +1007,27 @@ function renderImport() {
     setText("last-import-title", "Nenhum treino importado");
     setText("last-import-detail", "Importe o treino enviado pelo personal.");
   }
+
+  renderImportPreview();
+}
+
+function renderImportPreview() {
+  const preview = $("import-preview");
+  if (!preview) return;
+
+  if (!pendingImport?.plan) {
+    preview.classList.add("hidden");
+    return;
+  }
+
+  const plan = pendingImport.plan;
+  const workouts = Array.isArray(plan.workouts) ? plan.workouts.filter((workout) => !isRestWorkout(workout)) : [];
+  setText("import-preview-title", plan.week || "Semana importada");
+  setText("import-preview-goal", plan.objective || plan.athlete?.goal || "--");
+  setText("import-preview-workouts", String(workouts.length));
+  setText("import-preview-distance", formatKm(planDistance(plan), 1));
+  setText("import-preview-note", `${pendingImport.fileName || "arquivo.json"} pronto para ativar.`);
+  preview.classList.remove("hidden");
 }
 
 function renderProfileSetup() {
@@ -1300,8 +1487,9 @@ async function handleFile(file) {
   if (!file) return;
 
   try {
-    importPlan(JSON.parse(await file.text()), file.name);
-    alert("Treino importado com sucesso.");
+    const plan = normalizePlan(JSON.parse(await file.text()));
+    pendingImport = { plan, fileName: file.name };
+    renderImportPreview();
   } catch (error) {
     alert(error.message || "Não foi possível importar o treino. Verifique se o arquivo contém app, version, week, athlete, workouts e blocks.");
   }
@@ -1322,10 +1510,24 @@ function bindEvents() {
   });
 
   $("start-app-btn")?.addEventListener("click", startAppFlow);
+  $("next-action-btn")?.addEventListener("click", runNextAction);
   $("import-file-btn")?.addEventListener("click", () => $("import-file")?.click());
   $("import-file")?.addEventListener("change", (event) => {
     handleFile(event.target.files[0]);
     event.target.value = "";
+  });
+
+  $("confirm-import-btn")?.addEventListener("click", () => {
+    if (!pendingImport?.plan) return;
+    const { plan, fileName } = pendingImport;
+    pendingImport = null;
+    importPlan(plan, fileName);
+    alert("Semana ativada com sucesso.");
+  });
+
+  $("cancel-import-btn")?.addEventListener("click", () => {
+    pendingImport = null;
+    renderImportPreview();
   });
 
   $("week-select")?.addEventListener("change", (event) => {
